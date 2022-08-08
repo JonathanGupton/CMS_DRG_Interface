@@ -3,13 +3,14 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import datetime
+from typing import Optional
 
 
 from src.field_literal import (
-    DischargeDisposition,
-    Payer,
-    Sex,
-    PresentOnAdmission,
+    DischargeDispositionValue,
+    PayerValue,
+    SexValue,
+    PresentOnAdmissionValue,
     ApplyHACLogicValue,
 )
 
@@ -27,7 +28,22 @@ class Procedure:
 
 
 class Date:
-    pass
+    """
+    Date class used for all date fields
+    mm/dd/yyyy format
+    All blanks if no value is entered.
+    """
+    date_format = r"%m/%d/%Y"
+    field_length = 10
+
+    def __init__(self, date: Optional[datetime.date] = None) -> None:
+        self.date = date
+
+    def __str__(self):
+        if self.date:
+            return self.date.strftime(self.date_format)
+        else:
+            return " " * self.field_length
 
 
 class Field(ABC):
@@ -126,11 +142,34 @@ class AccountNumber(Field):
 
 
 class AdmitDate(Field):
-    pass
+    """
+    Admit Date field.
+    Field length 10.
+    mm/dd/yyyy format.
+    All blanks if no value is entered.
+    Used by grouper in age and LOS calculations.
+    """
+    def __init__(self, admit_date: Date) -> None:
+        self.admit_date = admit_date
+
+    def __str__(self):
+        return str(self.admit_date)
 
 
 class DischargeDate(Field):
-    pass
+    """
+    Discharge Date field.
+    Field length 10.
+    mm/dd/yyyy format.
+    All blanks if no value is entered.
+    Used by grouper in LOS calculations.
+    """
+
+    def __init__(self, discharge_date: Date) -> None:
+        self.discharge_date = discharge_date
+
+    def __str__(self):
+        return str(self.discharge_date)
 
 
 class DischargeStatus(Field):
