@@ -1,9 +1,29 @@
+from collections import UserString
+
+
 class Field:
     pass
 
 
 class PatientName(Field):
-    pass
+    """Patient Name field
+
+    Length 31
+    Alphanumeric
+    Left justified, blank-filled.
+    All blanks if no value is entered.
+    """
+    max_len = 31
+
+    def __init__(self, patient_name: str = ""):
+        super().__init__()
+        self._text = patient_name
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(\"{self._text}\")"
+
+    def __str__(self) -> str:
+        return self._text[:self.max_len].ljust(self.max_len)
 
 
 class MedicalRecordNumber(Field):
