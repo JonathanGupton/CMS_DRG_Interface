@@ -2,6 +2,16 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+import datetime
+
+
+from src.field_literal import (
+    DischargeDisposition,
+    Payer,
+    Sex,
+    PresentOnAdmission,
+    ApplyHACLogicValue,
+)
 
 
 @dataclass(frozen=True)
@@ -37,6 +47,7 @@ class PatientName(Field):
     Left justified, blank-filled.
     All blanks if no value is entered.
     """
+
     field_length = 31
 
     def __init__(self, patient_name: str = "") -> None:
@@ -44,23 +55,27 @@ class PatientName(Field):
         if patient_name.isalnum():
             self.patient_name = patient_name
         else:
-            raise ValueError(f"Invalid patient_name {patient_name}"
-                             f" patient_name must be alphanumeric")
+            raise ValueError(
+                f"Invalid patient_name {patient_name}"
+                f" patient_name must be alphanumeric"
+            )
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(\"{self.patient_name}\")"
+        return f'{self.__class__.__name__}("{self.patient_name}")'
 
     def __str__(self) -> str:
-        return self.patient_name[:self.field_length].ljust(self.field_length)
+        return self.patient_name[: self.field_length].ljust(self.field_length)
 
 
 class MedicalRecordNumber(Field):
     """
     Medical record number.
+    Length 13.
     Alphanumeric.
     Left-justified, blank-filled.
     All blanks if no value is entered.
     """
+
     field_length = 13
 
     def __init__(self, medical_record_number: str = "") -> None:
@@ -68,19 +83,46 @@ class MedicalRecordNumber(Field):
         if medical_record_number.isalnum():
             self.medical_record_number = medical_record_number
         else:
-            raise ValueError(f"Invalid medical record number "
-                             f"{medical_record_number}.  medical_record_number "
-                             f"must be alphanumeric.")
+            raise ValueError(
+                f"Invalid medical record number "
+                f"{medical_record_number}.  medical_record_number "
+                f"must be alphanumeric."
+            )
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(\"{self.medical_record_number}\")"
+        return f'{self.__class__.__name__}("{self.medical_record_number}")'
 
     def __str__(self):
-        return self.medical_record_number[:self.field_length].ljust(self.field_length)
+        return self.medical_record_number[: self.field_length].ljust(self.field_length)
 
 
 class AccountNumber(Field):
-    pass
+    """
+    Account number.
+    Length 17.
+    Alphanumeric.
+    Left-justified, blank-filled.
+    All blanks if no value is entered.
+    """
+
+    field_length = 17
+
+    def __init__(self, account_number: str = "") -> None:
+        super().__init__()
+        if account_number.isalnum():
+            self.account_number = account_number
+        else:
+            raise ValueError(
+                f"Invalid account number "
+                f"{account_number}.  account_number "
+                f"must be alphanumeric."
+            )
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}("{self.account_number}")'
+
+    def __str__(self):
+        return self.account_number[: self.field_length].ljust(self.field_length)
 
 
 class AdmitDate(Field):
