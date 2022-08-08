@@ -1,3 +1,4 @@
+"""Module containing the allowed literal values for various field types"""
 from enum import Enum
 
 
