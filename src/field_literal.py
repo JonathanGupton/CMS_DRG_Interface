@@ -4,6 +4,7 @@ from enum import Enum
 
 class DischargeDisposition(Enum):
     """Allowed values for patient discharge dispositions"""
+
     HOME_OR_SELF_CARE = "01"
     STCH = "02"
     SNF = "03"
@@ -49,6 +50,7 @@ class DischargeDisposition(Enum):
 
 class Payer(Enum):
     """Allowed Payer values"""
+
     MEDICARE = "01"
     MEDICAID = "02"
     TITLE_V = "03"
@@ -63,6 +65,7 @@ class Payer(Enum):
 
 class Sex(Enum):
     """Allowed Sex values"""
+
     UNKNOWN = "0"
     MALE = "1"
     FEMALE = "2"
@@ -70,6 +73,7 @@ class Sex(Enum):
 
 class PresentOnAdmission(Enum):
     """Allowed Present on Admission values"""
+
     YES = "Y"
     NO = "N"
     CLINICALLY_UNABLE_TO_DETERMINE = "W"
@@ -79,5 +83,6 @@ class PresentOnAdmission(Enum):
 
 class ApplyHACLogicValue(Enum):
     """Allowed Apply HAC Logic value"""
+
     EXEMPT_FROM_POA_REPORTING = "X"
     REQUIRES_POA_REPORTING = "Y"
