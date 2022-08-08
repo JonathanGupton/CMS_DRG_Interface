@@ -1,23 +1,31 @@
 """Module containing the fields used in the CMS DRG Batch Interface"""
+
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
-
-
-class Field:
-    pass
-
-
-class DateField(Field):
-    pass
 
 
 @dataclass(frozen=True)
 class Diagnosis:
-    pass
+    code: str
+    poa: str
 
 
 @dataclass(frozen=True)
 class Procedure:
+    code: str
+    date: str
+
+
+class Date:
     pass
+
+
+class Field(ABC):
+    """Base Class used for all record fields"""
+
+    @abstractmethod
+    def __str__(self):
+        raise NotImplementedError
 
 
 class PatientName(Field):
@@ -29,36 +37,57 @@ class PatientName(Field):
     Left justified, blank-filled.
     All blanks if no value is entered.
     """
-    max_len = 31
+    field_length = 31
 
-    def __init__(self, patient_name: str = ""):
+    def __init__(self, patient_name: str = "") -> None:
         super().__init__()
         if patient_name.isalnum():
-            self._text = patient_name
+            self.patient_name = patient_name
         else:
             raise ValueError(f"Invalid patient_name {patient_name}"
                              f" patient_name must be alphanumeric")
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(\"{self._text}\")"
+        return f"{self.__class__.__name__}(\"{self.patient_name}\")"
 
     def __str__(self) -> str:
-        return self._text[:self.max_len].ljust(self.max_len)
+        return self.patient_name[:self.field_length].ljust(self.field_length)
 
 
 class MedicalRecordNumber(Field):
-    pass
+    """
+    Medical record number.
+    Alphanumeric.
+    Left-justified, blank-filled.
+    All blanks if no value is entered.
+    """
+    field_length = 13
+
+    def __init__(self, medical_record_number: str = "") -> None:
+        super().__init__()
+        if medical_record_number.isalnum():
+            self.medical_record_number = medical_record_number
+        else:
+            raise ValueError(f"Invalid medical record number "
+                             f"{medical_record_number}.  medical_record_number "
+                             f"must be alphanumeric.")
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(\"{self.medical_record_number}\")"
+
+    def __str__(self):
+        return self.medical_record_number[:self.field_length].ljust(self.field_length)
 
 
 class AccountNumber(Field):
     pass
 
 
-class AdmitDate(DateField):
+class AdmitDate(Field):
     pass
 
 
-class DischargeDate(DateField):
+class DischargeDate(Field):
     pass
 
 
@@ -74,7 +103,7 @@ class LOS(Field):
     pass
 
 
-class BirthDate(DateField):
+class BirthDate(Field):
     pass
 
 
@@ -106,7 +135,7 @@ class SecondaryProcedures(Field):
     pass
 
 
-class ProcedureDate(DateField):
+class ProcedureDate(Field):
     pass
 
 
@@ -115,7 +144,11 @@ class ApplyHACLogic(Field):
 
 
 class UNUSED(Field):
-    pass
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return " "
 
 
 class OptionalInformation(Field):
