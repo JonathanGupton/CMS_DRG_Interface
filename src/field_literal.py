@@ -2,7 +2,7 @@
 from enum import Enum
 
 
-class DischargeDisposition(Enum):
+class DischargeDispositionValue(Enum):
     """Allowed values for patient discharge dispositions"""
 
     HOME_OR_SELF_CARE = "01"
@@ -48,7 +48,7 @@ class DischargeDisposition(Enum):
     OTHER_INSTITUTION_WITH_PLANNED_READMISSION_WITH_PLANNED_READMISSION = "95"
 
 
-class Payer(Enum):
+class PayerValue(Enum):
     """Allowed Payer values"""
 
     MEDICARE = "01"
@@ -63,7 +63,7 @@ class Payer(Enum):
     NO_CHARGE = "10"
 
 
-class Sex(Enum):
+class SexValue(Enum):
     """Allowed Sex values"""
 
     UNKNOWN = "0"
@@ -71,7 +71,7 @@ class Sex(Enum):
     FEMALE = "2"
 
 
-class PresentOnAdmission(Enum):
+class PresentOnAdmissionValue(Enum):
     """Allowed Present on Admission values"""
 
     YES = "Y"
