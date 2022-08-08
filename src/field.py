@@ -1,7 +1,22 @@
 """Module containing the fields used in the CMS DRG Batch Interface"""
+from dataclasses import dataclass
 
 
 class Field:
+    pass
+
+
+class DateField(Field):
+    pass
+
+
+@dataclass(frozen=True)
+class Diagnosis:
+    pass
+
+
+@dataclass(frozen=True)
+class Procedure:
     pass
 
 
@@ -39,11 +54,11 @@ class AccountNumber(Field):
     pass
 
 
-class AdmitDate(Field):
+class AdmitDate(DateField):
     pass
 
 
-class DischargeDate(Field):
+class DischargeDate(DateField):
     pass
 
 
@@ -59,7 +74,7 @@ class LOS(Field):
     pass
 
 
-class BirthDate(Field):
+class BirthDate(DateField):
     pass
 
 
@@ -91,7 +106,7 @@ class SecondaryProcedures(Field):
     pass
 
 
-class ProcedureDate(Field):
+class ProcedureDate(DateField):
     pass
 
 
