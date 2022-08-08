@@ -1,4 +1,4 @@
-from collections import UserString
+"""Module containing the fields used in the CMS DRG Batch Interface"""
 
 
 class Field:
@@ -6,7 +6,8 @@ class Field:
 
 
 class PatientName(Field):
-    """Patient Name field
+    """
+    Patient Name field
 
     Length 31
     Alphanumeric
@@ -17,7 +18,11 @@ class PatientName(Field):
 
     def __init__(self, patient_name: str = ""):
         super().__init__()
-        self._text = patient_name
+        if patient_name.isalnum():
+            self._text = patient_name
+        else:
+            raise ValueError(f"Invalid patient_name {patient_name}"
+                             f" patient_name must be alphanumeric")
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(\"{self._text}\")"
