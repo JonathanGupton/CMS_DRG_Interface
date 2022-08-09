@@ -79,10 +79,11 @@ class PresentOnAdmissionValue(Enum):
     CLINICALLY_UNABLE_TO_DETERMINE = "W"
     INSUFFICIENT_DOCUMENTATION_TO_DETERMINE = "U"
     EXEMPT = "1"
+    NONE_TYPE = " "
 
 
 class ApplyHACLogicValue(Enum):
-    """Allowed Apply HAC Logic value"""
+    """Allowed ApplyHACLogic value"""
 
     EXEMPT_FROM_POA_REPORTING = "X"
     REQUIRES_POA_REPORTING = "Y"
