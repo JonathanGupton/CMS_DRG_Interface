@@ -13,6 +13,11 @@ from src.field_literal import (
 from src.value_container import Date, Diagnosis, DiagnosisCode, ProcedureCode
 
 
+def is_alpha_num_or_space(text: str) -> bool:
+    """Check a string if it contains only alpha-numeric or space values"""
+    return all(char.isalnum() or char.isspace() for char in text)
+
+
 class Field(ABC):
     """Base Class used for all record fields"""
 
@@ -38,7 +43,7 @@ class PatientName(Field):
 
     def __init__(self, patient_name: str = "") -> None:
         super().__init__()
-        if patient_name.isalnum():
+        if is_alpha_num_or_space(patient_name):
             self.patient_name = patient_name
         else:
             raise ValueError(
