@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from collections import deque
-from typing import Sequence
+from typing import Sequence, Optional
 
 from src.field_literal import (
     DischargeDispositionValue,
@@ -10,7 +10,7 @@ from src.field_literal import (
     SexValue,
     ApplyHACLogicValue,
 )
-from src.value_container import Date, Diagnosis, ProcedureCode
+from src.value_container import Date, Diagnosis, DiagnosisCode, ProcedureCode
 
 
 class Field(ABC):
@@ -19,6 +19,9 @@ class Field(ABC):
     @abstractmethod
     def __str__(self):
         raise NotImplementedError
+
+    def __len__(self):
+        return len(str(self))
 
 
 class PatientName(Field):
@@ -262,11 +265,11 @@ class AdmitDiagnosis(Field):
 
     field_length = 7
 
-    def __init__(self, admit_diagnosis: Diagnosis) -> None:
+    def __init__(self, admit_diagnosis: DiagnosisCode) -> None:
         self.admit_diagnosis = admit_diagnosis
 
     def __str__(self):
-        return str(self.admit_diagnosis.code)
+        return str(self.admit_diagnosis)
 
 
 class PrincipalDiagnosis(Field):
@@ -311,8 +314,8 @@ class PrincipalProcedure(Field):
     Seven left-justified characters, blank-filled.
     """
 
-    def __init__(self, principal_procedure: ProcedureCode) -> None:
-        self.principal_procedure = principal_procedure
+    def __init__(self, principal_procedure: Optional[ProcedureCode] = None) -> None:
+        self.principal_procedure = principal_procedure if principal_procedure else ProcedureCode()
 
     def __str__(self) -> str:
         return str(self.principal_procedure)
@@ -327,21 +330,22 @@ class SecondaryProcedures(Field):
 
     max_secondary_procedures = 24
 
-    def __init__(self, secondary_procedures: Sequence[ProcedureCode]) -> None:
+    def __init__(self, secondary_procedures: Optional[Sequence[ProcedureCode]] = None) -> None:
         self.secondary_procedures = deque(
             [ProcedureCode()] * self.max_secondary_procedures,
             maxlen=self.max_secondary_procedures,
         )
-        for i, procedure in enumerate(
-            secondary_procedures[: self.max_secondary_procedures]
-        ):
-            self.secondary_procedures[i] = procedure
+        if secondary_procedures:
+            for i, procedure in enumerate(
+                secondary_procedures[: self.max_secondary_procedures]
+            ):
+                self.secondary_procedures[i] = procedure
 
     def __str__(self) -> str:
         return "".join(map(str, self.secondary_procedures))
 
 
-class ProcedureDate(Field):
+class ProcedureDates(Field):
     """
     Procedure dates
     The format is mm/dd/yyyy (for future use with POA logic)
@@ -351,14 +355,15 @@ class ProcedureDate(Field):
 
     max_procedure_dates = 25
 
-    def __init__(self, procedure_dates: Sequence[Date]) -> None:
+    def __init__(self, procedure_dates: Optional[Sequence[Date]] = None) -> None:
 
         self.procedure_dates = deque(
             [Date()] * self.max_procedure_dates,
             maxlen=self.max_procedure_dates,
         )
-        for i, date in enumerate(procedure_dates[: self.max_procedure_dates]):
-            self.procedure_dates[i] = date
+        if procedure_dates:
+            for i, date in enumerate(procedure_dates[: self.max_procedure_dates]):
+                self.procedure_dates[i] = date
 
     def __str__(self) -> str:
         return "".join(map(str, self.procedure_dates))
@@ -406,7 +411,7 @@ class OptionalInformation(Field):
 
     field_length = 72
 
-    def __init__(self, optional_information: str) -> None:
+    def __init__(self, optional_information: str = "") -> None:
         self.optional_information = optional_information
 
     def __str__(self):
