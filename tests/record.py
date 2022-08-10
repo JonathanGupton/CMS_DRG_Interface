@@ -43,7 +43,7 @@ def test_record():
     discharge_status = DischargeStatus(Disposition.HOME_OR_SELF_CARE)
     primary_payer = PrimaryPayer(Payer.INSURANCE_COMPANY)
     los = LOS(8)
-    birth_date = BirthDate(Date.from_string("06/19/1987"))
+    birth_date = BirthDate(Date.from_string("06/19/1980"))
     age = Age(35)
     sex = Sex(SexValue.MALE)
     admit_diagnosis = AdmitDiagnosis(DiagnosisCode("J189"))
