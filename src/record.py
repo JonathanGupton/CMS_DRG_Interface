@@ -1,6 +1,130 @@
+from src.field import (
+    PatientName,
+    MedicalRecordNumber,
+    AccountNumber,
+    AdmitDate,
+    DischargeDate,
+    DischargeStatus,
+    PrimaryPayer,
+    LOS,
+    BirthDate,
+    Age,
+    Sex,
+    AdmitDiagnosis,
+    PrincipalDiagnosis,
+    SecondaryDiagnoses,
+    PrincipalProcedure,
+    SecondaryProcedures,
+    ProcedureDates,
+    ApplyHACLogic,
+    UNUSED,
+    OptionalInformation,
+    Filler,
+)
 
 
 class Record:
-    pass
+    """Object representing individual records to be grouped"""
 
+    __slots__ = [
+        "patient_name",
+        "medical_record_number",
+        "account_number",
+        "admit_date",
+        "discharge_date",
+        "discharge_status",
+        "primary_payer",
+        "los",
+        "birth_date",
+        "age",
+        "sex",
+        "admit_diagnosis",
+        "principal_diagnosis",
+        "secondary_diagnoses",
+        "principal_procedure",
+        "secondary_procedures",
+        "procedure_date",
+        "apply_hac_logic",
+        "unused",
+        "optional_information",
+        "filler",
+    ]
 
+    def __init__(
+        self,
+        patient_name: PatientName,
+        medical_record_number: MedicalRecordNumber,
+        account_number: AccountNumber,
+        admit_date: AdmitDate,
+        discharge_date: DischargeDate,
+        discharge_status: DischargeStatus,
+        primary_payer: PrimaryPayer,
+        los: LOS,
+        birth_date: BirthDate,
+        age: Age,
+        sex: Sex,
+        admit_diagnosis: AdmitDiagnosis,
+        principal_diagnosis: PrincipalDiagnosis,
+        secondary_diagnoses: SecondaryDiagnoses,
+        principal_procedure: PrincipalProcedure,
+        secondary_procedures: SecondaryProcedures,
+        procedure_date: ProcedureDates,
+        apply_hac_logic: ApplyHACLogic,
+        optional_information: OptionalInformation = None,
+    ) -> None:
+        self.patient_name: PatientName = patient_name
+        self.medical_record_number: MedicalRecordNumber = medical_record_number
+        self.account_number: AccountNumber = account_number
+        self.admit_date: AdmitDate = admit_date
+        self.discharge_date: DischargeDate = discharge_date
+        self.discharge_status: DischargeStatus = discharge_status
+        self.primary_payer: PrimaryPayer = primary_payer
+        self.los: LOS = los
+        self.birth_date: BirthDate = birth_date
+        self.age: Age = age
+        self.sex: Sex = sex
+        self.admit_diagnosis: AdmitDiagnosis = admit_diagnosis
+        self.principal_diagnosis: PrincipalDiagnosis = principal_diagnosis
+        self.secondary_diagnoses: SecondaryDiagnoses = secondary_diagnoses
+        self.principal_procedure: PrincipalProcedure = principal_procedure
+        self.secondary_procedures: SecondaryProcedures = secondary_procedures
+        self.procedure_date: ProcedureDates = procedure_date
+        self.apply_hac_logic: ApplyHACLogic = apply_hac_logic
+        self.unused = UNUSED()
+        self.optional_information = (
+            optional_information if optional_information else OptionalInformation()
+        )
+        self.filler = Filler()
+
+    def __str__(self):
+        return "".join(
+            map(
+                str,
+                [
+                    self.patient_name,
+                    self.medical_record_number,
+                    self.account_number,
+                    self.admit_date,
+                    self.discharge_date,
+                    self.discharge_status,
+                    self.primary_payer,
+                    self.los,
+                    self.birth_date,
+                    self.age,
+                    self.sex,
+                    self.admit_diagnosis,
+                    self.principal_diagnosis,
+                    self.secondary_diagnoses,
+                    self.principal_procedure,
+                    self.secondary_procedures,
+                    self.procedure_date,
+                    self.apply_hac_logic,
+                    self.unused,
+                    self.optional_information,
+                    self.filler,
+                ],
+            )
+        )
+
+    def __len__(self) -> int:
+        return len(str(self))
