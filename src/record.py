@@ -97,34 +97,30 @@ class Record:
         self.filler = Filler()
 
     def __str__(self):
-        return "".join(
-            map(
-                str,
-                [
-                    self.patient_name,
-                    self.medical_record_number,
-                    self.account_number,
-                    self.admit_date,
-                    self.discharge_date,
-                    self.discharge_status,
-                    self.primary_payer,
-                    self.los,
-                    self.birth_date,
-                    self.age,
-                    self.sex,
-                    self.admit_diagnosis,
-                    self.principal_diagnosis,
-                    self.secondary_diagnoses,
-                    self.principal_procedure,
-                    self.secondary_procedures,
-                    self.procedure_date,
-                    self.apply_hac_logic,
-                    self.unused,
-                    self.optional_information,
-                    self.filler,
-                ],
-            )
-        )
+        return "".join(map(str, self))
 
     def __len__(self) -> int:
         return len(str(self))
+
+    def __iter__(self):
+        yield self.patient_name
+        yield self.medical_record_number
+        yield self.account_number
+        yield self.admit_date
+        yield self.discharge_date
+        yield self.discharge_status
+        yield self.primary_payer
+        yield self.los
+        yield self.birth_date
+        yield self.age
+        yield self.sex
+        yield self.admit_diagnosis
+        yield self.principal_diagnosis
+        yield self.secondary_diagnoses
+        yield self.principal_procedure
+        yield self.secondary_procedures
+        yield self.procedure_date
+        yield self.apply_hac_logic
+        yield self.unused
+        yield self.optional_information
+        yield self.filler
