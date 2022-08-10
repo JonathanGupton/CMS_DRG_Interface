@@ -29,6 +29,11 @@ class Date:
         else:
             return " " * self.field_length
 
+    @classmethod
+    def from_string(cls, date_string: str, format: str = r"%m/%d/%Y") -> "Date":
+        date = datetime.datetime.strptime(date_string, format)
+        return Date(date)
+
 
 class DiagnosisCode:
     """
@@ -84,6 +89,7 @@ class ProcedureCode:
     Procedure code without decimal.
     All blanks if no value is entered.
     """
+
     max_len = 7
 
     def __init__(self, procedure_code: Optional[str] = None) -> None:
@@ -107,10 +113,13 @@ class Procedure:
     """
     Procedure object containing the procedure code and procedure date information
     """
+
     __slots__ = ["procedure_code", "date"]
 
     def __init__(
-        self, procedure_code: Optional[ProcedureCode] = None, date: Optional[Date] = None
+        self,
+        procedure_code: Optional[ProcedureCode] = None,
+        date: Optional[Date] = None,
     ) -> None:
         if not procedure_code:
             self.procedure_code = Procedure()
