@@ -35,7 +35,7 @@ from src.record import Record
 
 
 def test_record():
-    patient_name = PatientName("JonathanGupton")
+    patient_name = PatientName("Jonathan Gupton")
     medical_record_number = MedicalRecordNumber("1234567")
     account_number = AccountNumber("0987654321")
     admit_date = AdmitDate(Date.from_string("08/01/2022"))
