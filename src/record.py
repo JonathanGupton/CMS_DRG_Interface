@@ -1,4 +1,7 @@
+from typing import Iterator
+
 from src.field import (
+    Field,
     PatientName,
     MedicalRecordNumber,
     AccountNumber,
@@ -96,13 +99,13 @@ class Record:
         )
         self.filler = Filler()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "".join(map(str, self))
 
     def __len__(self) -> int:
         return len(str(self))
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Field]:
         yield self.patient_name
         yield self.medical_record_number
         yield self.account_number
