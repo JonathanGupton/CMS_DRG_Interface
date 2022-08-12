@@ -22,7 +22,10 @@ class Batch:
         return len(self.records)
 
     def __str__(self) -> str:
-        return "".join(map(str, self))
+        return "\n".join(map(str, self))
+
+    def __repr__(self) -> str:
+        return str(self)
 
     def add_record(self, record) -> None:
         self.records.append(record)
