@@ -16,7 +16,7 @@ def test_batch(example_record):
 def test_batchwriter_write_to_tempfile(example_record):
     batch = Batch([example_record])
 
-    filepath = Path("input.txt")
+    filepath = Path.cwd() / Path("input.txt")
     batch_handler = BatchFileHandler(filepath=filepath)
     assert not filepath.exists()
     batch_handler.write(batch)
@@ -28,7 +28,7 @@ def test_batchwriter_write_to_tempfile(example_record):
 def test_batchwriter_write_to_file(example_record):
     batch = Batch([example_record])
 
-    filepath = Path("input.txt")
+    filepath = Path.cwd() / Path("input.txt")
     batch_handler = BatchFileHandler(filepath=filepath, batch_file_object=BatchFile)
     assert not filepath.exists()
     batch_handler.write(batch)
@@ -36,3 +36,4 @@ def test_batchwriter_write_to_file(example_record):
     batch_handler.cleanup()
     assert filepath.exists()
     filepath.unlink()  # clean up file
+    assert not filepath.exists()
