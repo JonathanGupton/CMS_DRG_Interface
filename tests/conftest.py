@@ -34,7 +34,6 @@ from src.field_literal import (
     DischargeDispositionValue as Disposition,
 )
 from src.record import Record
-from src.batch import Batch, BatchFile, BatchFileHandler
 
 
 @pytest.fixture
