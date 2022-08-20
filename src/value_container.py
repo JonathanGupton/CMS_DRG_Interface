@@ -1,4 +1,5 @@
 """Module containing the complex objects used by the grouper"""
+from __future__ import annotations
 import datetime
 from typing import Optional
 
@@ -50,6 +51,7 @@ class DiagnosisCode:
             self.code = ""
             return
         code = remove_decimal(code)
+        code = code.strip()
         if not code.isalnum():
             raise ValueError
         self.code = code
@@ -62,6 +64,8 @@ class Diagnosis:
     """
     Diagnosis field value containing the diagnosis code and POA indicator
     """
+
+    field_length = 8
 
     def __init__(
         self,
@@ -81,6 +85,16 @@ class Diagnosis:
     def __str__(self):
         return str(self.code) + str(self.poa.value)
 
+    @classmethod
+    def extract_from_output(cls, output) -> Diagnosis:
+        """
+        Extract the diagnosis code and POA value from an 8 character diagnosis
+        string
+        """
+        dx_code = output[: DiagnosisCode.max_len]
+        poa = PresentOnAdmissionValue(output[-1])
+        return Diagnosis(dx_code, poa)
+
 
 class ProcedureCode:
     """
@@ -90,7 +104,7 @@ class ProcedureCode:
     All blanks if no value is entered.
     """
 
-    max_len = 7
+    field_length = 7
 
     def __init__(self, procedure_code: Optional[str] = None) -> None:
         if not procedure_code:
@@ -104,9 +118,9 @@ class ProcedureCode:
 
     def __str__(self):
         if not self.procedure_code:
-            return " " * self.max_len
+            return " " * self.field_length
         else:
-            return self.procedure_code.ljust(self.max_len)
+            return self.procedure_code.ljust(self.field_length)
 
 
 class Procedure:
@@ -114,7 +128,10 @@ class Procedure:
     Procedure object containing the procedure code and procedure date information
     """
 
-    __slots__ = ["procedure_code", "date"]
+    __slots__ = [
+        "procedure_code",
+        "date",
+    ]
 
     def __init__(
         self,
