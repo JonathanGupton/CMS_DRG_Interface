@@ -1,21 +1,20 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Iterable, Iterator, Optional, Type
+from typing import Iterable, Iterator, Optional
 
-
-from src.record import Record
+from src.record import InputRecord
 
 
 class Batch:
     """Object containing records for the CMS Batch grouper"""
 
-    def __init__(self, records: Optional[Iterable[Record]]) -> None:
+    def __init__(self, records: Optional[Iterable[InputRecord]]) -> None:
         if not records:
             self.records = []
         else:
             self.records = list(records)
 
-    def __iter__(self) -> Iterator[Record]:
+    def __iter__(self) -> Iterator[InputRecord]:
         return iter(self.records)
 
     def __len__(self) -> int:
@@ -45,6 +44,7 @@ class BatchFileObject(ABC):
     def cleanup(self):
         pass
 
+
 class BatchFile(BatchFileObject):
     """Create a permanent batch data file"""
     def __init__(self, filepath):
@@ -63,17 +63,3 @@ class TemporaryBatchFile(BatchFileObject):
         self.filepath.unlink()
 
 
-class BatchFileHandler:
-    """Object used to handle the writing and clean up of batch data files"""
-
-    def __init__(self, filepath, batch_file_object: Type[BatchFileObject] = TemporaryBatchFile) -> None:
-        self.batch_file = batch_file_object(filepath)
-
-    def write(self, batch):
-        """
-        Write the batch data to file
-        """
-        self.batch_file.write(batch)
-
-    def cleanup(self):
-        self.batch_file.cleanup()
