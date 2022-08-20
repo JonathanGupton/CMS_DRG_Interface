@@ -89,7 +89,7 @@ class ApplyHACLogicValue(Enum):
     REQUIRES_POA_REPORTING = "Y"
 
 
-class MedicalSurgicalIndicator(Enum):
+class MedicalSurgicalIndicatorValue(Enum):
     """Medical Surgical DRG Indicator values"""
 
     DRGReturnCodeNotZero = 0
@@ -97,7 +97,7 @@ class MedicalSurgicalIndicator(Enum):
     SurgicalDRG = 2
 
 
-class DRGReturnCode(Enum):
+class DRGReturnCodeValue(Enum):
     """DRG Return Code values"""
 
     OK_DRG_ASSIGNED = 0
@@ -113,7 +113,7 @@ class DRGReturnCode(Enum):
     HAC_POA_MULTIPLE_DISTINCT_HAC_POAS_NOT_Y_OR_W = 15
 
 
-class MSGMCEEditReturnCode(Enum):
+class MSGMCEEditReturnCodeValue(Enum):
     """MSG/MCE Edit Record Code values"""
 
     MCE_NO_ERRORS_FOUND = 0
@@ -123,7 +123,7 @@ class MSGMCEEditReturnCode(Enum):
     MCE_INVALID_DISCHARGE_DATE = 4
 
 
-class PrincipalDiagnosisEditReturnFlag(Enum):
+class PrincipalDiagnosisEditReturnFlagValue(Enum):
     """Principal diagnosis edit return flag"""
 
     DIAGNOSIS_NOT_USED_TO_ASSIGN_DRG = 0
@@ -152,7 +152,7 @@ class PrincipalDiagnosisEditReturnFlag(Enum):
     PRINCIPAL_DIAGNOSIS_PART_OF_HAC_ASSIGNMENT_CRITERIA = 99
 
 
-class PrincipalDiagnosisHospitalAcquiredConditionAssignmentCriteria(Enum):
+class PrincipalDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue(Enum):
     """Principal diagnosis HAC assignment criteria values"""
 
     CRITERIA_TO_BE_ASSIGNED_AS_A_HAC_NOT_MET = "00"
@@ -160,7 +160,7 @@ class PrincipalDiagnosisHospitalAcquiredConditionAssignmentCriteria(Enum):
     DIAGNOSIS_WAS_NOT_CONSIDERED_BY_GROUPER = "  "
 
 
-class DiagnosisHospitalAcquiredConditionUsage(Enum):
+class DiagnosisHospitalAcquiredConditionUsageValue(Enum):
     """Principal and Secondary Diagnosis hospital acquire condition usage values"""
 
     HAC_NOT_APPLICABLE = "0"
@@ -170,7 +170,7 @@ class DiagnosisHospitalAcquiredConditionUsage(Enum):
     DIAGNOSIS_WAS_NOT_CONSIDERED_BY_GROUPER = " "
 
 
-class SecondaryDiagnosisEditReturnFlag(Enum):
+class SecondaryDiagnosisEditReturnFlagValue(Enum):
     """Secondary diagnosis edit return flag"""
 
     DIAGNOSIS_NOT_USED_TO_ASSIGN_DRG = 0
@@ -193,7 +193,7 @@ class SecondaryDiagnosisEditReturnFlag(Enum):
     SECONDARY_DIAGNOSIS_IS_A_HAC = 99
 
 
-class SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteria(Enum):
+class SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue(Enum):
     """Secondary diagnosis HAC assignment criteria values"""
 
     CRITERIA_TO_BE_ASSIGNED_AS_A_HAC_NOT_MET = "00"
@@ -216,7 +216,7 @@ class SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteria(Enum):
     DIAGNOSIS_WAS_NOT_CONSIDERED_BY_GROUPER = "  "
 
 
-class ProcedureEditReturnFlag(Enum):
+class ProcedureEditReturnFlagValue(Enum):
     """Procedure Edit Return Flag"""
 
     PROCEDURE_DID_NOT_AFFECT_DRG = "00"
@@ -236,7 +236,7 @@ class ProcedureEditReturnFlag(Enum):
     PROCEDURE_PART_OF_HAC_ASSIGNMENT_CRITERIA = "99"
 
 
-class ProcedureHospitalAcquiredConditionAssignmentCriteria(Enum):
+class ProcedureHospitalAcquiredConditionAssignmentCriteriaValue(Enum):
     """Procedure Hospital Acquired Condition Assignment Criteria"""
 
     CRITERIA_TO_BE_ASSIGNED_AS_A_HAC_NOT_MET = "00"
@@ -251,7 +251,7 @@ class ProcedureHospitalAcquiredConditionAssignmentCriteria(Enum):
     DIAGNOSIS_WAS_NOT_CONSIDERED_BY_GROUPER = "  "
 
 
-class DRGCCMCCUsage(Enum):
+class DRGCCMCCUsageValue(Enum):
     """DRG CC/MCC Usage"""
 
     DRG_ASSIGNED_IS_NOT_BASED_ON_THE_PRESENCE_OF_CC_OR_MCC = 0
@@ -259,7 +259,7 @@ class DRGCCMCCUsage(Enum):
     DRG_ASSIGNED_IS_BASED_ON_THE_PRESENCE_OF_CC = 2
 
 
-class HACStatus(Enum):
+class HACStatusValue(Enum):
     """Hospital Acquire Condition Status"""
 
     HAC_STATUS_NOT_APPLICABLE = 0
