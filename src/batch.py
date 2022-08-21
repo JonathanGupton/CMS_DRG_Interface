@@ -29,37 +29,6 @@ class Batch:
     def add_record(self, record) -> None:
         self.records.append(record)
 
-
-class BatchFileObject(ABC):
-    """Base class specifying the file type used to store the batch data"""
-
-    def __init__(self, filepath):
-        self.filepath = Path(filepath)
-
-    def write(self, batch) -> None:
-        with open(self.filepath, "w") as f:
-            f.write(str(batch))
-
-    @abstractmethod
-    def cleanup(self):
-        pass
-
-
-class BatchFile(BatchFileObject):
-    """Create a permanent batch data file"""
-    def __init__(self, filepath):
-        super().__init__(filepath)
-
-    def cleanup(self):
-        pass
-
-
-class TemporaryBatchFile(BatchFileObject):
-    """Create a temporary batch data file that will be deleted after closing"""
-    def __init__(self, filepath):
-        super().__init__(filepath)
-
-    def cleanup(self):
-        self.filepath.unlink()
-
-
+    def to_file(self, filepath: Path) -> None:
+        with open(filepath, "w") as f:
+            f.write(str(self))
