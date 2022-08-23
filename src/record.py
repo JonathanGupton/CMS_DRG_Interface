@@ -1,7 +1,9 @@
-from typing import Iterator
+from __future__ import annotations
 
-from src.field import (
-    Field,
+from pathlib import Path
+from typing import Iterator, Sequence
+
+from src.batch_field import (
     PatientName,
     MedicalRecordNumber,
     AccountNumber,
@@ -23,10 +25,36 @@ from src.field import (
     UNUSED,
     OptionalInformation,
     Filler,
+    MSGMCEVersionUsed,
+    InitialDRG,
+    InitialMSIndicator,
+    FinalMDC,
+    FinalDRG,
+    FinalMSIndicator,
+    DRGReturnCode,
+    MSGMCEEditReturnCode,
+    DiagnosisCodeCount,
+    ProcedureCodeCount,
+    PrincipalDiagnosisEditReturnFlag,
+    PrincipalDiagnosisHospitalAcquiredConditionCriteria,
+    PrincipalDiagnosisHospitalAcquiredConditionUsage,
+    SecondaryDiagnosisReturnFlag,
+    SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteria,
+    SecondaryDiagnosisHospitalAcquiredConditionUsage,
+    ProcedureEditReturnFlag,
+    ProcedureHospitalAcquiredConditionAssignmentCriteria,
+    InitialFourDigitDRG,
+    FinalFourDigitDRG,
+    FinalDRGCCMCCUsage,
+    InitialDRGCCMCCUsage,
+    NumberOfUniqueHospitalAcquiredConditionsMet,
+    HospitalAcquiredConditionStatus,
+    CostWeight,
 )
+from src.field import Field
 
 
-class Record:
+class InputRecord:
     """Object representing individual records to be grouped"""
 
     __slots__ = [
@@ -127,3 +155,72 @@ class Record:
         yield self.unused
         yield self.optional_information
         yield self.filler
+
+
+class OutputRecord:
+    """Class for storing and parsing output record strings"""
+
+    fields = [
+        PatientName,
+        MedicalRecordNumber,
+        AccountNumber,
+        AdmitDate,
+        DischargeDate,
+        DischargeStatus,
+        PrimaryPayer,
+        LOS,
+        BirthDate,
+        Age,
+        Sex,
+        AdmitDiagnosis,
+        PrincipalDiagnosis,
+        SecondaryDiagnoses,
+        PrincipalProcedure,
+        SecondaryProcedures,
+        ProcedureDates,
+        ApplyHACLogic,
+        OptionalInformation,
+        MSGMCEVersionUsed,
+        InitialDRG,
+        InitialMSIndicator,
+        FinalMDC,
+        FinalDRG,
+        FinalMSIndicator,
+        DRGReturnCode,
+        MSGMCEEditReturnCode,
+        DiagnosisCodeCount,
+        ProcedureCodeCount,
+        PrincipalDiagnosisEditReturnFlag,
+        PrincipalDiagnosisHospitalAcquiredConditionCriteria,
+        PrincipalDiagnosisHospitalAcquiredConditionUsage,
+        SecondaryDiagnosisReturnFlag,
+        SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteria,
+        SecondaryDiagnosisHospitalAcquiredConditionUsage,
+        ProcedureEditReturnFlag,
+        ProcedureHospitalAcquiredConditionAssignmentCriteria,
+        InitialFourDigitDRG,
+        FinalFourDigitDRG,
+        FinalDRGCCMCCUsage,
+        InitialDRGCCMCCUsage,
+        NumberOfUniqueHospitalAcquiredConditionsMet,
+        HospitalAcquiredConditionStatus,
+        CostWeight,
+    ]
+
+    def __init__(self, record: str) -> None:
+        self.record = record
+
+    @classmethod
+    def from_line(cls, line):
+        """Parse an output record from a grouper batchfile output line"""
+        record = cls(line)
+        for field in cls.fields:
+            setattr(record, field.name, field.new_from_output_string(line))
+        return record
+
+
+def load_output_from_file(filepath: Path) -> Sequence[OutputRecord]:
+    """Read in the grouped records from the CMS MCE Grouper output file"""
+    with open(filepath, "r") as f:
+        output_records = [OutputRecord.from_line(line) for line in f.readlines()]
+    return output_records
