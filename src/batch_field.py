@@ -1,5 +1,6 @@
 """Module containing the fields used in the CMS DRG Batch Interface"""
 
+from __future__ import annotations
 from collections import deque
 from typing import Sequence, Optional
 
@@ -42,27 +43,23 @@ class PatientName(Field):
 
     field_length = 31
     position = 0
+    occurrence = 1
     name = "patient_name"
 
-    def __init__(self, patient_name: str = "") -> None:
-        super().__init__()
-        if is_alphanumeric_or_space(patient_name):
-            self.patient_name = patient_name
+    def __init__(self, value: str = "") -> None:
+        if is_alphanumeric_or_space(value):
+            super().__init__(value)
         else:
             raise ValueError(
-                f"Invalid patient_name {patient_name}"
-                f" patient_name must be alphanumeric"
+                f"Invalid patient_name {value}" f" patient_name must be alphanumeric"
             )
 
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}("{self.patient_name}")'
-
     def __str__(self) -> str:
-        return self.patient_name[: self.field_length].ljust(self.field_length)
+        return self.value[: self.field_length].ljust(self.field_length)
 
     @classmethod
-    def extract_from_output(cls, output: str) -> str:
-        return output[cls.position : cls.position + cls.field_length].strip()
+    def parse_field_string(cls, field_str: str) -> str:
+        return field_str.strip()
 
 
 class MedicalRecordNumber(Field):
@@ -76,28 +73,25 @@ class MedicalRecordNumber(Field):
 
     field_length = 13
     position = 31
+    occurrence = 1
     name = "medical_record_number"
 
-    def __init__(self, medical_record_number: str = "") -> None:
-        super().__init__()
-        if medical_record_number.isalnum():
-            self.medical_record_number = medical_record_number
+    def __init__(self, value: str = "") -> None:
+        if value.isalnum():
+            super().__init__(value)
         else:
             raise ValueError(
                 f"Invalid medical record number "
-                f"{medical_record_number}.  medical_record_number "
+                f"{value}.  medical_record_number "
                 f"must be alphanumeric."
             )
 
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}("{self.medical_record_number}")'
-
     def __str__(self) -> str:
-        return self.medical_record_number[: self.field_length].ljust(self.field_length)
+        return self.value[: self.field_length].ljust(self.field_length)
 
     @classmethod
-    def extract_from_output(cls, output) -> str:
-        return output[cls.position : cls.position + cls.field_length].strip()
+    def parse_field_string(cls, field_str) -> str:
+        return field_str.strip()
 
 
 class AccountNumber(Field):
@@ -111,28 +105,24 @@ class AccountNumber(Field):
 
     field_length = 17
     position = 44
+    occurrence = 1
     name = "account_number"
 
-    def __init__(self, account_number: str = "") -> None:
-        super().__init__()
-        if account_number.isalnum():
-            self.account_number = account_number
+    def __init__(self, value: str = "") -> None:
+        if value.isalnum():
+            super().__init__(value)
         else:
             raise ValueError(
-                f"Invalid account number "
-                f"{account_number}.  account_number "
+                f"Invalid account number {value}.  account_number "
                 f"must be alphanumeric."
             )
 
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}("{self.account_number}")'
-
     def __str__(self) -> str:
-        return self.account_number[: self.field_length].ljust(self.field_length)
+        return self.value[: self.field_length].ljust(self.field_length)
 
     @classmethod
-    def extract_from_output(cls, output) -> str:
-        return output[cls.position : cls.position + cls.field_length].strip()
+    def parse_field_string(cls, field_str: str) -> str:
+        return field_str.strip()
 
 
 class AdmitDate(Field):
@@ -146,17 +136,18 @@ class AdmitDate(Field):
 
     field_length = Date.field_length
     position = 61
+    occurrence = 1
     name = "admit_date"
 
-    def __init__(self, admit_date: Date) -> None:
-        self.admit_date = admit_date
+    def __init__(self, value: Date) -> None:
+        super().__init__(value)
 
     def __str__(self) -> str:
-        return str(self.admit_date)
+        return str(self.value)
 
     @classmethod
-    def extract_from_output(cls, output) -> Date:
-        return Date.from_string(output[cls.position : cls.position + cls.field_length])
+    def parse_field_string(cls, field_str: str) -> Date:
+        return Date.from_string(field_str)
 
 
 class DischargeDate(Field):
@@ -170,17 +161,18 @@ class DischargeDate(Field):
 
     field_length = Date.field_length
     position = 71
+    occurrence = 1
     name = "discharge_date"
 
-    def __init__(self, discharge_date: Date) -> None:
-        self.discharge_date = discharge_date
+    def __init__(self, value: Date) -> None:
+        super().__init__(value)
 
     def __str__(self) -> str:
-        return str(self.discharge_date)
+        return str(self.value)
 
     @classmethod
-    def extract_from_output(cls, output) -> Date:
-        return Date.from_string(output[cls.position : cls.position + cls.field_length])
+    def parse_field_string(cls, field_str: str) -> Date:
+        return Date.from_string(field_str)
 
 
 class DischargeStatus(Field):
@@ -192,18 +184,18 @@ class DischargeStatus(Field):
 
     field_length = 2
     position = 81
+    occurrence = 1
     name = "discharge_status"
 
-    def __init__(self, discharge_disposition: DischargeDispositionValue) -> None:
-        self.discharge_disposition = discharge_disposition
+    def __init__(self, value: DischargeDispositionValue) -> None:
+        super().__init__(value)
 
     def __str__(self):
-        return str(self.discharge_disposition.value).zfill(self.field_length)
+        return str(self.value.value).zfill(self.field_length)
 
     @classmethod
-    def extract_from_output(cls, output) -> str:
-        dc_disposition = int(output[cls.position : cls.position + cls.field_length])
-        return DischargeDispositionValue(dc_disposition)
+    def parse_field_string(cls, field_str: str) -> DischargeDispositionValue:
+        return DischargeDispositionValue(int(field_str))
 
 
 class PrimaryPayer(Field):
@@ -215,18 +207,18 @@ class PrimaryPayer(Field):
 
     field_length = 2
     position = 83
+    occurrence = 1
     name = "primary_payer"
 
-    def __init__(self, primary_payer: PayerValue) -> None:
-        self.primary_payer = primary_payer
+    def __init__(self, value: PayerValue) -> None:
+        super().__init__(value)
 
     def __str__(self) -> str:
-        return str(self.primary_payer.value).zfill(self.field_length)
+        return str(self.value.value).zfill(self.field_length)
 
     @classmethod
-    def extract_from_output(cls, output):
-        payer = int(output[cls.position : cls.position + cls.field_length])
-        return PayerValue(payer)
+    def parse_field_string(cls, field_str: str) -> PayerValue:
+        return PayerValue(int(field_str))
 
 
 class LOS(Field):
@@ -243,23 +235,24 @@ class LOS(Field):
     max_days = 45291
     field_length = 5
     position = 85
+    occurrence = 1
     name = "los"
 
-    def __init__(self, length_of_stay: int) -> None:
-        if (length_of_stay < self.min_days) or (length_of_stay > self.max_days):
+    def __init__(self, value: int) -> None:
+        if (value < self.min_days) or (value > self.max_days):
             raise ValueError(
                 f"Invalid length of stay.  length_of_stay must be "
                 f"more than {self.min_days} and less than "
                 f"{self.max_days}"
             )
-        self.length_of_stay = length_of_stay
+        super().__init__(value)
 
     def __str__(self) -> str:
-        return str(self.length_of_stay).zfill(self.field_length)
+        return str(self.value).zfill(self.field_length)
 
     @classmethod
-    def extract_from_output(cls, output):
-        return int(output[cls.position : cls.position + cls.field_length])
+    def parse_field_string(cls, field_str: str) -> int:
+        return int(field_str)
 
 
 class BirthDate(Field):
@@ -274,15 +267,15 @@ class BirthDate(Field):
     position = 90
     name = "birth_date"
 
-    def __init__(self, birth_date: Date) -> None:
-        self.birth_date = birth_date
+    def __init__(self, value: Date) -> None:
+        super().__init__(value)
 
     def __str__(self) -> str:
-        return str(self.birth_date)
+        return str(self.value)
 
     @classmethod
-    def extract_from_output(cls, output):
-        return Date.from_string(output[cls.position : cls.position + cls.field_length])
+    def parse_field_string(cls, field_str: str) -> Date:
+        return Date.from_string(field_str)
 
 
 class Age(Field):
@@ -298,22 +291,23 @@ class Age(Field):
     max_age = 124
     field_length = 3
     position = 100
+    occurrence = 1
     name = "age"
 
-    def __init__(self, age: int) -> None:
-        if (age < self.min_age) or (age > self.max_age):
+    def __init__(self, value: int) -> None:
+        if (value < self.min_age) or (value > self.max_age):
             raise ValueError(
-                f"Invalid age {age}.  age must be between "
+                f"Invalid age {value}.  age must be between "
                 f"{self.min_age} and {self.max_age}."
             )
-        self.age = age
+        super().__init__(value)
 
     def __str__(self):
-        return str(self.age).zfill(self.field_length)
+        return str(self.value).zfill(self.field_length)
 
     @classmethod
-    def extract_from_output(cls, output):
-        return int(output[cls.position : cls.position + cls.field_length])
+    def parse_field_string(cls, field_str: str) -> int:
+        return int(field_str)
 
 
 class Sex(Field):
@@ -324,18 +318,18 @@ class Sex(Field):
 
     position = 103
     field_length = 1
+    occurrence = 1
     name = "sex"
 
     def __init__(self, sex: SexValue) -> None:
-        self.sex = sex
+        super().__init__(sex)
 
     def __str__(self) -> str:
-        return str(self.sex.value)
+        return str(self.value.value)
 
     @classmethod
-    def extract_from_output(cls, output):
-        sex = int(output[cls.position : cls.position + cls.field_length])
-        return SexValue(sex)
+    def parse_field_string(cls, field_str: str) -> SexValue:
+        return SexValue(int(field_str))
 
 
 class AdmitDiagnosis(Field):
@@ -348,17 +342,18 @@ class AdmitDiagnosis(Field):
 
     position = 104
     field_length = 7
+    occurrence = 1
     name = "admit_diagnosis"
 
-    def __init__(self, admit_diagnosis: DiagnosisCode) -> None:
-        self.admit_diagnosis = admit_diagnosis
+    def __init__(self, value: DiagnosisCode) -> None:
+        super().__init__(value)
 
     def __str__(self):
-        return str(self.admit_diagnosis)
+        return str(self.value)
 
     @classmethod
-    def extract_from_output(cls, output):
-        return DiagnosisCode(output[cls.position : cls.position + cls.field_length])
+    def parse_field_string(cls, field_str: str) -> DiagnosisCode:
+        return DiagnosisCode(field_str)
 
 
 class PrincipalDiagnosis(Field):
@@ -372,16 +367,15 @@ class PrincipalDiagnosis(Field):
     position = 111
     name = "principal_diagnosis"
 
-    def __init__(self, principal_diagnosis: Diagnosis) -> None:
-        self.principal_diagnosis = principal_diagnosis
+    def __init__(self, value: Diagnosis) -> None:
+        super().__init__(value)
 
     def __str__(self):
-        return str(self.principal_diagnosis)
+        return str(self.value)
 
     @classmethod
-    def extract_from_output(cls, output):
-        diagnosis = output[cls.position : cls.position + cls.field_length]
-        return Diagnosis.extract_from_output(diagnosis)
+    def parse_field_string(cls, field_str: str) -> Diagnosis:
+        return Diagnosis.extract_from_output(field_str)
 
 
 class SecondaryDiagnoses(Field):
@@ -393,29 +387,31 @@ class SecondaryDiagnoses(Field):
     """
 
     position = 119
-    max_secondary_diagnoses = 24
-    field_length = max_secondary_diagnoses * Diagnosis.field_length
+    occurrence = 24
+    field_length = occurrence * Diagnosis.field_length
     name = "secondary_diagnoses"
 
-    def __init__(self, secondary_diagnoses: Sequence[Diagnosis]) -> None:
-        self.secondary_diagnoses = deque(
-            [Diagnosis()] * self.max_secondary_diagnoses,
-            maxlen=self.max_secondary_diagnoses,
+    def __init__(self, value: Sequence[Diagnosis]) -> None:
+        secondary_diagnoses = deque(
+            [Diagnosis()] * self.occurrence,
+            maxlen=self.occurrence,
         )
-        for i, dx in enumerate(secondary_diagnoses[: self.max_secondary_diagnoses]):
-            self.secondary_diagnoses[i] = dx
+        for i, dx in enumerate(value[: self.occurrence]):
+            secondary_diagnoses[i] = dx
+
+        super().__init__(secondary_diagnoses)
 
     def __str__(self) -> str:
-        return "".join(map(str, self.secondary_diagnoses))
+        return "".join(map(str, self.value))
 
     @classmethod
-    def extract_from_output(cls, output) -> list[Diagnosis]:
+    def parse_field_string(cls, field_str: str) -> Sequence[Diagnosis]:
         diagnoses = []
-        position = cls.position
-        for i in range(cls.max_secondary_diagnoses):
+        position = 0
+        for i in range(cls.occurrence):
             next_position = position + Diagnosis.field_length
             diagnoses.append(
-                Diagnosis.extract_from_output(output[position:next_position])
+                Diagnosis.extract_from_output(field_str[position:next_position])
             )
             position = next_position
         return diagnoses
@@ -429,19 +425,21 @@ class PrincipalProcedure(Field):
 
     position = 311
     field_length = 7
+    occurrence = 1
     name = "principal_procedure"
 
     def __init__(self, principal_procedure: Optional[ProcedureCode] = None) -> None:
-        self.principal_procedure = (
+        principal_procedure = (
             principal_procedure if principal_procedure else ProcedureCode()
         )
+        super().__init__(principal_procedure)
 
     def __str__(self) -> str:
-        return str(self.principal_procedure)
+        return str(self.value)
 
     @classmethod
-    def extract_from_output(cls, output):
-        return ProcedureCode(output[cls.position : cls.position + cls.field_length])
+    def parse_field_string(cls, field_str: str) -> ProcedureCode:
+        return ProcedureCode(field_str)
 
 
 class SecondaryProcedures(Field):
@@ -451,34 +449,31 @@ class SecondaryProcedures(Field):
     Up to 24 procedure codes without decimal.
     """
 
-    max_secondary_procedures = 24
+    occurrence = 24
     position = 318
-    field_length = max_secondary_procedures * ProcedureCode.field_length
+    field_length = occurrence * ProcedureCode.field_length
     name = "secondary_procedures"
 
-    def __init__(
-        self, secondary_procedures: Optional[Sequence[ProcedureCode]] = None
-    ) -> None:
-        self.secondary_procedures = deque(
-            [ProcedureCode()] * self.max_secondary_procedures,
-            maxlen=self.max_secondary_procedures,
+    def __init__(self, value: Optional[Sequence[ProcedureCode]] = None) -> None:
+        secondary_procedures_queue = deque(
+            [ProcedureCode()] * self.occurrence,
+            maxlen=self.occurrence,
         )
-        if secondary_procedures:
-            for i, procedure in enumerate(
-                secondary_procedures[: self.max_secondary_procedures]
-            ):
-                self.secondary_procedures[i] = procedure
+        if value:
+            for i, procedure in enumerate(value[: self.occurrence]):
+                secondary_procedures_queue[i] = procedure
+        super().__init__(secondary_procedures_queue)
 
     def __str__(self) -> str:
-        return "".join(map(str, self.secondary_procedures))
+        return "".join(map(str, self.value))
 
     @classmethod
-    def extract_from_output(cls, output):
+    def parse_field_string(cls, field_str: str) -> Sequence[ProcedureCode]:
         procedures = []
-        position = cls.position
-        for i in range(cls.max_secondary_procedures):
+        position = 0
+        for i in range(cls.occurrence):
             next_position = position + ProcedureCode.field_length
-            code_str = output[position:next_position].strip()
+            code_str = field_str[position:next_position].strip()
             if not code_str:
                 break
             procedures.append(ProcedureCode(code_str))
@@ -495,30 +490,31 @@ class ProcedureDates(Field):
     """
 
     position = 486
-    max_procedure_dates = 25
-    field_length = max_procedure_dates * Date.field_length
+    occurrence = 25
+    field_length = occurrence * Date.field_length
     name = "procedure_date"
 
-    def __init__(self, procedure_dates: Optional[Sequence[Date]] = None) -> None:
+    def __init__(self, value: Optional[Sequence[Date]] = None) -> None:
 
-        self.procedure_dates = deque(
-            [Date()] * self.max_procedure_dates,
-            maxlen=self.max_procedure_dates,
+        procedure_dates_queue = deque(
+            [Date()] * self.occurrence,
+            maxlen=self.occurrence,
         )
-        if procedure_dates:
-            for i, date in enumerate(procedure_dates[: self.max_procedure_dates]):
-                self.procedure_dates[i] = date
+        if value:
+            for i, date in enumerate(value[: self.occurrence]):
+                procedure_dates_queue[i] = date
+        super().__init__(procedure_dates_queue)
 
     def __str__(self) -> str:
-        return "".join(map(str, self.procedure_dates))
+        return "".join(map(str, self.value))
 
     @classmethod
-    def extract_from_output(cls, output):
+    def parse_field_string(cls, field_str: str) -> Sequence[Date]:
         procedure_dates = []
-        position = cls.position
-        for i in range(cls.max_procedure_dates):
+        position = 0
+        for i in range(cls.occurrence):
             next_position = position + Date.field_length
-            date_str = output[position:next_position].strip()
+            date_str = field_str[position:next_position].strip()
             if not date_str:
                 break
             procedure_dates.append(Date.from_string(date_str))
@@ -538,18 +534,18 @@ class ApplyHACLogic(Field):
 
     position = 736
     field_length = 1
+    occurrence = 1
     name = "apply_hac_logic"
 
     def __init__(self, apply_hac_logic_value: ApplyHACLogicValue) -> None:
-        self.apply_hac_logic_value = apply_hac_logic_value
+        super().__init__(apply_hac_logic_value)
 
     def __str__(self):
-        return str(self.apply_hac_logic_value.value)
+        return str(self.value.value)
 
     @classmethod
-    def extract_from_output(cls, output) -> ApplyHACLogicValue:
-        hac_logic = output[cls.position : cls.position + cls.field_length]
-        return ApplyHACLogicValue(hac_logic)
+    def parse_field_string(cls, field_str: str) -> ApplyHACLogicValue:
+        return ApplyHACLogicValue(field_str)
 
 
 class UNUSED(Field):
@@ -561,16 +557,17 @@ class UNUSED(Field):
 
     position = 737
     field_length = 1
+    occurrence = 1
     name = "unused"
 
     def __init__(self):
-        self.field_value = ""
+        super().__init__("")
 
     def __str__(self):
-        return self.field_value.ljust(self.field_length)
+        return self.value.ljust(self.field_length)
 
     @classmethod
-    def extract_from_output(cls, output):
+    def parse_field_string(cls, field_str: str):
         raise NotImplementedError
 
 
@@ -583,17 +580,18 @@ class OptionalInformation(Field):
 
     position = 738
     field_length = 72
+    occurrence = 1
     name = "optional_information"
 
     def __init__(self, optional_information: str = "") -> None:
-        self.optional_information = optional_information
+        super().__init__(optional_information)
 
     def __str__(self):
-        return self.optional_information[: self.field_length].ljust(self.field_length)
+        return self.value[: self.field_length].ljust(self.field_length)
 
     @classmethod
-    def extract_from_output(cls, output):
-        return output[cls.position : cls.position + cls.field_length].strip()
+    def parse_field_string(cls, field_str: str):
+        return field_str.strip()
 
 
 class Filler(Field):
@@ -605,16 +603,17 @@ class Filler(Field):
 
     position = 810
     field_length = 25
+    occurrence = 1
     name = "filler"
 
     def __init__(self):
-        self.filler = ""
+        super().__init__("")
 
     def __str__(self):
-        return self.filler.ljust(self.field_length)
+        return self.value.ljust(self.field_length)
 
     @classmethod
-    def extract_from_output(cls, output):
+    def parse_field_string(cls, field_str: str):
         raise NotImplementedError
 
 
@@ -627,17 +626,18 @@ class MSGMCEVersionUsed(Field):
 
     position = 835
     field_length = 3
+    occurrence = 1
     name = "msg_mce_version_used"
 
-    def __init__(self):
-        pass
+    def __init__(self, msg_mce_version_used) -> None:
+        super().__init__(msg_mce_version_used)
 
-    def __str__(self):
-        pass
+    def __str__(self) -> str:
+        return str(self.value)
 
     @classmethod
-    def extract_from_output(cls, output):
-        return output[cls.position : cls.position + cls.field_length]
+    def parse_field_string(cls, field_str: str) -> str:
+        return field_str
 
 
 class InitialDRG(Field):
@@ -648,17 +648,18 @@ class InitialDRG(Field):
 
     position = 838
     field_length = 3
+    occurrence = 1
     name = "initial_drg"
 
-    def __init__(self):
-        pass
+    def __init__(self, initial_drg: int) -> None:
+        super().__init__(initial_drg)
 
     def __str__(self):
-        pass
+        return str(self.value)
 
     @classmethod
-    def extract_from_output(cls, output):
-        return int(output[cls.position : cls.position + cls.field_length])
+    def parse_field_string(cls, field_str: str) -> int:
+        return int(field_str)
 
 
 class InitialMSIndicator(Field):
@@ -668,18 +669,20 @@ class InitialMSIndicator(Field):
 
     position = 841
     field_length = 1
+    occurrence = 1
     name = "initial_medical_surgical_indicator"
 
-    def __init__(self):
-        pass
+    def __init__(
+        self, medical_surgical_indicator_value: MedicalSurgicalIndicatorValue
+    ) -> None:
+        super().__init__(medical_surgical_indicator_value)
 
     def __str__(self):
-        pass
+        return self.value.name
 
     @classmethod
-    def extract_from_output(cls, output) -> MedicalSurgicalIndicatorValue:
-        ms_indicator = int(output[cls.position : cls.position + cls.field_length])
-        return MedicalSurgicalIndicatorValue(ms_indicator)
+    def parse_field_string(cls, field_str: str) -> MedicalSurgicalIndicatorValue:
+        return MedicalSurgicalIndicatorValue(field_str)
 
 
 class FinalMDC(Field):
@@ -690,17 +693,18 @@ class FinalMDC(Field):
 
     position = 841
     field_length = 3
+    occurrence = 1
     name = "final_mdc"
 
-    def __init__(self):
-        pass
+    def __init__(self, final_mdc: int) -> None:
+        super().__init__(final_mdc)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output) -> int:
-        return int(output[cls.position : cls.position + cls.field_length])
+    def parse_field_string(cls, field_str: str) -> int:
+        return int(field_str)
 
 
 class FinalDRG(Field):
@@ -711,17 +715,18 @@ class FinalDRG(Field):
 
     position = 844
     field_length = 3
+    occurrence = 1
     name = "final_drg"
 
-    def __init__(self):
-        pass
+    def __init__(self, final_drg: int) -> None:
+        super().__init__(final_drg)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output) -> int:
-        return int(output[cls.position : cls.position + cls.field_length])
+    def parse_field_string(cls, field_str: str) -> int:
+        return int(field_str)
 
 
 class FinalMSIndicator(Field):
@@ -731,18 +736,18 @@ class FinalMSIndicator(Field):
 
     position = 847
     field_length = 1
+    occurrence = 1
     name = "final_medical_surgical_indicator"
 
-    def __init__(self):
-        pass
+    def __init__(self, med_surg_indicator: MedicalSurgicalIndicatorValue) -> None:
+        super().__init__(med_surg_indicator)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output) -> MedicalSurgicalIndicatorValue:
-        ms_indicator = int(output[cls.position : cls.position + cls.field_length])
-        return MedicalSurgicalIndicatorValue(ms_indicator)
+    def parse_field_string(cls, field_str: str) -> MedicalSurgicalIndicatorValue:
+        return MedicalSurgicalIndicatorValue(int(field_str))
 
 
 class DRGReturnCode(Field):
@@ -754,18 +759,18 @@ class DRGReturnCode(Field):
 
     position = 848
     field_length = 2
+    occurrence = 1
     name = "drg_return_code"
 
-    def __init__(self):
-        pass
+    def __init__(self, drg_return_code: DRGReturnCodeValue) -> None:
+        super().__init__(drg_return_code)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output) -> DRGReturnCodeValue:
-        return_code = int(output[cls.position : cls.position + cls.field_length])
-        return DRGReturnCodeValue(return_code)
+    def parse_field_string(cls, field_str: str) -> DRGReturnCodeValue:
+        return DRGReturnCodeValue(int(field_str))
 
 
 class MSGMCEEditReturnCode(Field):
@@ -776,18 +781,18 @@ class MSGMCEEditReturnCode(Field):
 
     position = 850
     field_length = 4
+    occurrence = 1
     name = "msg_mce_edit_return_code"
 
-    def __init__(self):
-        pass
+    def __init__(self, msg_mce_edit_return_code: MSGMCEEditReturnCodeValue) -> None:
+        super().__init__(msg_mce_edit_return_code)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output) -> MSGMCEEditReturnCodeValue:
-        return_code = int(output[cls.position : cls.position + cls.field_length])
-        return MSGMCEEditReturnCodeValue(return_code)
+    def parse_field_string(cls, field_str: str) -> MSGMCEEditReturnCodeValue:
+        return MSGMCEEditReturnCodeValue(int(field_str))
 
 
 class DiagnosisCodeCount(Field):
@@ -800,17 +805,18 @@ class DiagnosisCodeCount(Field):
 
     position = 854
     field_length = 2
+    occurrence = 1
     name = "diagnosis_code_count"
 
-    def __init__(self):
-        pass
+    def __init__(self, diagnosis_code_count: int) -> None:
+        super().__init__(diagnosis_code_count)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output) -> int:
-        return int(output[cls.position : cls.position + cls.field_length])
+    def parse_field_string(cls, field_str: str) -> int:
+        return int(field_str)
 
 
 class ProcedureCodeCount(Field):
@@ -822,17 +828,18 @@ class ProcedureCodeCount(Field):
 
     position = 856
     field_length = 2
+    occurrence = 1
     name = "procedure_code_count"
 
-    def __init__(self):
-        pass
+    def __init__(self, procedure_code_count: int) -> None:
+        super().__init__(procedure_code_count)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output) -> int:
-        return int(output[cls.position : cls.position + cls.field_length])
+    def parse_field_string(cls, field_str: str) -> int:
+        return int(field_str)
 
 
 class PrincipalDiagnosisEditReturnFlag(Field):
@@ -843,25 +850,28 @@ class PrincipalDiagnosisEditReturnFlag(Field):
     A maximum of four flags can be returned for each diagnosis code.
     """
 
-    position = 858
-    field_length = 8
-    name = "principal_diagnosis_edit_return_flag"
     return_flag_length = 2
     max_return_flags = 4
+    position = 858
+    field_length = return_flag_length * max_return_flags
+    occurrence = 1
+    name = "principal_diagnosis_edit_return_flag"
 
-    def __init__(self):
-        pass
+    def __init__(self, principal_diagnosis_edit_return_flag):
+        super().__init__(principal_diagnosis_edit_return_flag)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output):
+    def parse_field_string(
+        cls, field_str: str
+    ) -> Sequence[PrincipalDiagnosisEditReturnFlagValue]:
         return_flags = []
-        position = cls.position
+        position = 0
         for i in range(cls.max_return_flags):
             next_position = position + cls.return_flag_length
-            val = int(output[position:next_position])
+            val = int(field_str[position:next_position])
             return_flags.append(PrincipalDiagnosisEditReturnFlagValue(val))
             position = next_position
         return return_flags
@@ -876,21 +886,24 @@ class PrincipalDiagnosisHospitalAcquiredConditionCriteria(Field):
     n_criteria_fields = 5
     criteria_field_length = 2
     field_length = n_criteria_fields * criteria_field_length
+    occurrence = 1
     name = "principal_diagnosis_hospital_acquired_condition_assignment_criteria"
 
-    def __init__(self):
-        pass
+    def __init__(self, principal_diagnosis_hac_assignment_criteria):
+        super().__init__(principal_diagnosis_hac_assignment_criteria)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output):
+    def parse_field_string(
+        cls, field_str
+    ) -> Sequence[PrincipalDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue]:
         return_flags = []
-        position = cls.position
+        position = 0
         for i in range(cls.n_criteria_fields):
             next_position = position + cls.criteria_field_length
-            val = output[position:next_position]
+            val = field_str[position:next_position]
             return_flags.append(
                 PrincipalDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue(val)
             )
@@ -907,21 +920,24 @@ class PrincipalDiagnosisHospitalAcquiredConditionUsage(Field):
     usage_value_field_length = 1
     n_usage_fields = 5
     field_length = n_usage_fields * usage_value_field_length
+    occurrence = 1
     name = "principal_diagnosis_hospital_acquired_condition_usage"
 
-    def __init__(self):
-        pass
+    def __init__(self, principal_diagnosis_hospital_acquired_condition_usage) -> None:
+        super().__init__(principal_diagnosis_hospital_acquired_condition_usage)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output):
+    def parse_field_string(
+        cls, field_str
+    ) -> Sequence[DiagnosisHospitalAcquiredConditionUsageValue]:
         hac_usage = []
-        position = cls.position
+        position = 0
         for i in range(cls.n_usage_fields):
             next_position = position + cls.usage_value_field_length
-            val = output[position:next_position]
+            val = field_str[position:next_position]
             hac_usage.append(DiagnosisHospitalAcquiredConditionUsageValue(val))
             position = next_position
         return hac_usage
@@ -941,25 +957,26 @@ class SecondaryDiagnosisReturnFlag(Field):
     return_flag_length = 2
     return_flags_per_diagnosis = 4
     return_flag_field_length = return_flag_length * return_flags_per_diagnosis
-    n_return_flag_fields = 24
-    field_length = return_flag_field_length * n_return_flag_fields
+    occurrence = 24
+    field_length = return_flag_field_length * occurrence
 
     name = "secondary_diagnosis_return_flag"
 
-    def __init__(self):
-        pass
+    def __init__(self, secondary_diagnosis_result_flags):
+        super().__init__(secondary_diagnosis_result_flags)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output) -> list[SecondaryDiagnosisEditReturnFlagValue]:
-        # TODO:  The return value is a list of 8-char str instead of up to 4 flag values
+    def parse_field_string(cls, field_str: str) -> Sequence[str]:
+        # TODO:  The return value is a list of 8-char str instead of up to 4
+        #  flag values
         flags = []
-        position = cls.position
-        for i in range(cls.n_return_flag_fields):
+        position = 0
+        for i in range(cls.occurrence):
             next_position = position + cls.return_flag_field_length
-            flags.append(output[position:next_position])
+            flags.append(field_str[position:next_position])
             position = next_position
         return flags
 
@@ -974,24 +991,29 @@ class SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteria(Field):
 
     position = 1073
     hac_field_length = 10
-    n_hac_criteria_fields = 24
-    field_length = hac_field_length * n_hac_criteria_fields
+    occurrence = 24
+    field_length = hac_field_length * occurrence
     name = "secondary_diagnosis_hospital_acquired_condition_assignment_criteria"
 
-    def __init__(self):
-        pass
+    def __init__(
+        self, secondary_diagnosis_hospital_acquired_condition_assignment_criteria
+    ):
+        super().__init__(
+            secondary_diagnosis_hospital_acquired_condition_assignment_criteria
+        )
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output):
-        # TODO:  Figure out how these are parsed at a criteria flag level and fix return value
+    def parse_field_string(cls, field_str: str) -> Sequence[str]:
+        # TODO:  Figure out how these are parsed at a criteria flag level and
+        #  fix return value
         hac_criteria = []
-        position = cls.position
-        for i in range(cls.n_hac_criteria_fields):
+        position = 0
+        for i in range(cls.occurrence):
             next_position = position + cls.hac_field_length
-            hac_criteria.append(output[position:next_position])
+            hac_criteria.append(field_str[position:next_position])
             position = next_position
         return hac_criteria
 
@@ -1006,23 +1028,24 @@ class SecondaryDiagnosisHospitalAcquiredConditionUsage(Field):
 
     position = 1313
     usage_field_length = 5
-    occurrences = 24
+    occurrence = 24
     name = "secondary_diagnosis_hospital_acquired_condition_usage"
 
-    def __init__(self):
-        pass
+    def __init__(self, secondary_diagnosis_hospital_acquired_condition_usage):
+        super().__init__(secondary_diagnosis_hospital_acquired_condition_usage)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output):
-        # TODO:  Figure out how these are parsed at a usage flag level and fix return value
+    def parse_field_string(cls, field_str: str) -> Sequence[str]:
+        # TODO:  Figure out how these are parsed at a usage flag level and fix
+        #  return value
         hac_usage = []
-        position = cls.position
-        for i in range(cls.occurrences):
+        position = 0
+        for i in range(cls.occurrence):
             next_position = position + cls.usage_field_length
-            hac_usage.append(output[position:next_position])
+            hac_usage.append(field_str[position:next_position])
             position = next_position
         return hac_usage
 
@@ -1032,24 +1055,25 @@ class ProcedureEditReturnFlag(Field):
 
     position = 1433
     return_flag_field_length = 8
-    occurrences = 25
-    field_length = occurrences * return_flag_field_length
+    occurrence = 25
+    field_length = occurrence * return_flag_field_length
     name = "procedure_edit_return_flag"
 
-    def __init__(self):
-        pass
+    def __init__(self, procedure_edit_return_flag):
+        super().__init__(procedure_edit_return_flag)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output):
-        # TODO:  Figure out how these are parsed at a usage flag level and fix return value
+    def parse_field_string(cls, field_str: str) -> Sequence[str]:
+        # TODO:  Figure out how these are parsed at a usage flag level and fix
+        #  return value
         return_flags = []
-        position = cls.position
-        for i in range(cls.occurrences):
+        position = 0
+        for i in range(cls.occurrence):
             next_position = position + cls.return_flag_field_length
-            return_flags.append(output[position:next_position])
+            return_flags.append(field_str[position:next_position])
             position = next_position
         return return_flags
 
@@ -1058,25 +1082,26 @@ class ProcedureHospitalAcquiredConditionAssignmentCriteria(Field):
     """ """
 
     position = 1633
-    occurrences = 25
+    occurrence = 25
     criteria_field_length = 10
-    field_length = occurrences * criteria_field_length
+    field_length = occurrence * criteria_field_length
     name = "procedure_hospital_acquired_condition_assignment_criteria"
 
-    def __init__(self):
-        pass
+    def __init__(self, procedure_hospital_acquired_condition_assignment_criteria):
+        super().__init__(procedure_hospital_acquired_condition_assignment_criteria)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output):
-        # TODO:  Figure out how these are parsed at a usage flag level and fix return value
+    def parse_field_string(cls, field_str: str) -> Sequence[str]:
+        # TODO:  Figure out how these are parsed at a usage flag level and fix
+        #  return value
         criteria = []
-        position = cls.position
-        for i in range(cls.occurrences):
+        position = 0
+        for i in range(cls.occurrence):
             next_position = position + cls.criteria_field_length
-            criteria.append(output[position:next_position])
+            criteria.append(field_str[position:next_position])
             position = next_position
         return criteria
 
@@ -1086,17 +1111,18 @@ class InitialFourDigitDRG(Field):
 
     position = 1883
     field_length = 4
+    occurrence = 1
     name = "initial_four_digit_drg"
 
-    def __init__(self):
-        pass
+    def __init__(self, initial_four_digit_drg) -> None:
+        super().__init__(initial_four_digit_drg)
 
-    def __str__(self):
-        pass
+    def __str__(self) -> str:
+        return self.value
 
     @classmethod
-    def extract_from_output(cls, output):
-        return output[cls.position : cls.position + cls.field_length]
+    def parse_field_string(cls, field_str: str) -> str:
+        return field_str
 
 
 class FinalFourDigitDRG(Field):
@@ -1104,17 +1130,18 @@ class FinalFourDigitDRG(Field):
 
     position = 1887
     field_length = 4
+    occurrence = 1
     name = "final_four_digit_drg"
 
-    def __init__(self):
-        pass
+    def __init__(self, final_four_digit_drg) -> None:
+        super().__init__(final_four_digit_drg)
 
-    def __str__(self):
-        pass
+    def __str__(self) -> str:
+        return self.value
 
     @classmethod
-    def extract_from_output(cls, output):
-        return output[cls.position : cls.position + cls.field_length]
+    def parse_field_string(cls, field_str: str) -> str:
+        return field_str
 
 
 class FinalDRGCCMCCUsage(Field):
@@ -1122,19 +1149,18 @@ class FinalDRGCCMCCUsage(Field):
 
     position = 1891
     field_length = 1
+    occurrence = 1
     name = "final_drg_cc_mcc_usage"
 
-    def __init__(self):
-        pass
+    def __init__(self, drg_cc_mcc_usage_value: DRGCCMCCUsageValue) -> None:
+        super().__init__(drg_cc_mcc_usage_value)
 
-    def __str__(self):
-        pass
+    def __str__(self) -> str:
+        return self.value.value
 
     @classmethod
-    def extract_from_output(cls, output):
-        return DRGCCMCCUsageValue(
-            int(output[cls.position : cls.position + cls.field_length])
-        )
+    def parse_field_string(cls, field_str: str) -> DRGCCMCCUsageValue:
+        return DRGCCMCCUsageValue(int(field_str))
 
 
 class InitialDRGCCMCCUsage(Field):
@@ -1142,19 +1168,18 @@ class InitialDRGCCMCCUsage(Field):
 
     position = 1892
     field_length = 1
+    occurrence = 1
     name = "initial_drg_cc_mcc_usage"
 
-    def __init__(self):
-        pass
+    def __init__(self, initial_drg_cc_mcc_usage: DRGCCMCCUsageValue) -> None:
+        super().__init__(initial_drg_cc_mcc_usage)
 
     def __str__(self):
         pass
 
     @classmethod
-    def extract_from_output(cls, output):
-        return DRGCCMCCUsageValue(
-            int(output[cls.position : cls.position + cls.field_length])
-        )
+    def parse_field_string(cls, field_str: str) -> DRGCCMCCUsageValue:
+        return DRGCCMCCUsageValue(int(field_str))
 
 
 class NumberOfUniqueHospitalAcquiredConditionsMet(Field):
@@ -1162,17 +1187,18 @@ class NumberOfUniqueHospitalAcquiredConditionsMet(Field):
 
     position = 1893
     field_length = 2
+    occurrence = 1
     name = "number_of_unique_hospital_acquired_conditions_met"
 
-    def __init__(self):
-        pass
+    def __init__(self, number_of_unique_hospital_acquired_conditions_met):
+        super().__init__(number_of_unique_hospital_acquired_conditions_met)
 
     def __str__(self):
-        pass
+        return str(self.value)
 
     @classmethod
-    def extract_from_output(cls, output) -> int:
-        return int(output[cls.position : cls.position + cls.field_length])
+    def parse_field_string(cls, field_str: str) -> int:
+        return int(field_str)
 
 
 class HospitalAcquiredConditionStatus(Field):
@@ -1180,17 +1206,18 @@ class HospitalAcquiredConditionStatus(Field):
 
     position = 1895
     field_length = 1
+    occurrence = 1
     name = "hospital_acquired_condition_status"
 
-    def __init__(self):
-        pass
+    def __init__(self, hospital_acquired_condition_status) -> None:
+        super().__init__(hospital_acquired_condition_status)
 
     def __str__(self):
-        pass
+        return self.value.value
 
     @classmethod
-    def extract_from_output(cls, output):
-        return HACStatusValue(int(output[cls.position : cls.position + cls.field_length]))
+    def parse_field_string(cls, field_str: str) -> HACStatusValue:
+        return HACStatusValue(int(field_str))
 
 
 class CostWeight(Field):
@@ -1202,14 +1229,15 @@ class CostWeight(Field):
 
     position = 1896
     field_length = 7
+    occurrence = 1
     name = "cost_weight"
 
-    def __init__(self):
-        pass
+    def __init__(self, cost_weight) -> None:
+        super().__init__(cost_weight)
 
     def __str__(self):
-        pass
+        return str(self.value)
 
     @classmethod
-    def extract_from_output(cls, output) -> float:
-        return float(output[cls.position : cls.position + cls.field_length])
+    def parse_field_string(cls, field_str: str) -> float:
+        return float(field_str)

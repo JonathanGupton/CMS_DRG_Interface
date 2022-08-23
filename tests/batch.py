@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from src.batch import Batch, BatchFile, BatchFileHandler
+from src.batch import Batch, BatchFile
+from src.filehandler import FileHandler
 
 
 def test_batch(example_record):
@@ -17,7 +18,7 @@ def test_batchwriter_write_to_tempfile(example_record):
     batch = Batch([example_record])
 
     filepath = Path.cwd() / Path("input.txt")
-    batch_handler = BatchFileHandler(filepath=filepath)
+    batch_handler = FileHandler(filepath=filepath)
     assert not filepath.exists()
     batch_handler.write(batch)
     assert filepath.exists()
@@ -29,7 +30,7 @@ def test_batchwriter_write_to_file(example_record):
     batch = Batch([example_record])
 
     filepath = Path.cwd() / Path("input.txt")
-    batch_handler = BatchFileHandler(filepath=filepath, batch_file_object=BatchFile)
+    batch_handler = FileHandler(filepath=filepath, batch_file_object=BatchFile)
     assert not filepath.exists()
     batch_handler.write(batch)
     assert filepath.exists()
