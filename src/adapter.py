@@ -4,6 +4,12 @@ import subprocess
 from abc import ABC, abstractmethod
 from enum import Enum
 from pathlib import Path
+from subprocess import CompletedProcess
+from typing import Optional
+
+from src.batch import Batch
+from src.config import CONFIG
+from src.parameter import GrouperParameter
 
 
 @contextlib.contextmanager
@@ -19,55 +25,70 @@ def working_directory(path):
         os.chdir(prev_cwd)
 
 
-class MSDRGGrouperSoftwareOptions(Enum):
+class MSDRGGrouperSoftwareOption(Enum):
     """Command line arguments used by the CMS MS-DRG Grouper software"""
+
     Input = "-i"
     FormattedOutput = "-o"
     SingleLineOutput = "-u"
 
 
-class MSDRGGrouperSoftwareParameters:
+class MSDRGGrouperSoftwareParameter(GrouperParameter):
     """
     Class containing the required parameters for grouping a batch with the
     CMS MS-DRG Grouper Software
     """
+
     def __init__(
         self,
-        batchfile: Path,
-        output_type: MSDRGGrouperSoftwareOptions,
-        output_destination: Path,
+        *args,
+        batch: Batch,
+        batchfile_path: Optional[Path] = None,
+        output_type: MSDRGGrouperSoftwareOption = MSDRGGrouperSoftwareOption.SingleLineOutput,
+        output_destination: Optional[Path] = None,
+        **kwargs,
     ):
-        self.batchfile = batchfile
+        super().__init__(*args, **kwargs)
+        self.batch = batch
+        self.batchfile_path = (
+            batchfile_path if batchfile_path else Path.cwd() / "input.txt"
+        )
         self.output_type = output_type
-        self.output_destination = output_destination
+        self.output_destination = (
+            output_destination if output_destination else Path.cwd() / "output.txt"
+        )
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.batchfile}, {self.output_type}, {self.output_destination})"
+        return f"{self.__class__.__name__}({self.batchfile_path}, {self.output_type}, {self.output_destination})"
 
     def __iter__(self):
-        yield MSDRGGrouperSoftwareOptions.Input.value
-        yield str(self.batchfile)
+        yield MSDRGGrouperSoftwareOption.Input.value
+        yield str(self.batchfile_path)
         yield self.output_type.value
         yield str(self.output_destination)
 
 
 class GrouperInterface(ABC):
     """Base class for interfacing with the Grouper software"""
+
     @abstractmethod
-    def group(self, *args, **kwargs) -> bool:
+    def group(self, params) -> bool:
         pass
 
 
 class MSDRGGrouperSoftwareInterface(GrouperInterface):
-    """Class responsible for calling the MS-DRG Grouper program"""
+    """Class responsible for directly calling the MS-DRG Grouper program"""
 
     msgmce = "msgmce.bat"
 
-    def __init__(self, grouper_directory: Path) -> None:
-        self.grouper_filepath = grouper_directory
+    def __init__(self, grouper_directory: Path = None) -> None:
+        if grouper_directory is not None:
+            self.grouper_directory = grouper_directory
+        else:
+            self.grouper_directory = CONFIG["CMS_MCE_GROUPER"]["grouper_directory"]
 
-    def group(self, params: MSDRGGrouperSoftwareParameters) -> bool:
+    def group(self, params: MSDRGGrouperSoftwareParameter) -> CompletedProcess:
         command = [self.msgmce, *params]
-        with working_directory(self.grouper_filepath):
-            subprocess.Popen(command)
-        return True
+        with working_directory(self.grouper_directory):
+            proc = subprocess.run(command)
+        return proc
