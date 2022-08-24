@@ -682,7 +682,7 @@ class InitialMSIndicator(Field):
 
     @classmethod
     def parse_field_string(cls, field_str: str) -> MedicalSurgicalIndicatorValue:
-        return MedicalSurgicalIndicatorValue(field_str)
+        return MedicalSurgicalIndicatorValue(int(field_str))
 
 
 class FinalMDC(Field):
