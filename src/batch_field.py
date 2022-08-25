@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from collections import deque
-from typing import Sequence, Optional
+from typing import Sequence, Optional, Type, Union
 
 from src.field_literal import (
     ApplyHACLogicValue,
@@ -18,7 +18,7 @@ from src.field_literal import (
     SecondaryDiagnosisEditReturnFlagValue,
     SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue,
     ProcedureEditReturnFlagValue,
-    ProcedureHospitalAcquiredConditionAssignmentCriteriaValue,
+    ProcedureHACAssignmentCriteriaValue,
     DRGCCMCCUsageValue,
     HACStatusValue,
 )
@@ -26,9 +26,65 @@ from src.field import Field
 from src.value_container import Date, Diagnosis, DiagnosisCode, ProcedureCode
 
 
+FIELD_LITERAL = Union[
+    ApplyHACLogicValue,
+    DischargeDispositionValue,
+    PayerValue,
+    SexValue,
+    MedicalSurgicalIndicatorValue,
+    DRGReturnCodeValue,
+    MSGMCEEditReturnCodeValue,
+    PrincipalDiagnosisEditReturnFlagValue,
+    PrincipalDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue,
+    DiagnosisHospitalAcquiredConditionUsageValue,
+    SecondaryDiagnosisEditReturnFlagValue,
+    SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue,
+    ProcedureEditReturnFlagValue,
+    ProcedureHACAssignmentCriteriaValue,
+    DRGCCMCCUsageValue,
+    HACStatusValue,
+]
+
+
 def is_alphanumeric_or_space(text: str) -> bool:
     """Check if a string contains only alphanumeric or space values"""
     return all(char.isalnum() or char.isspace() for char in text)
+
+
+def parse_field_substring(
+    substr: str,
+    n_fields: int,
+    field_len: int,
+    break_values: Sequence[str],
+    cast: Type[int] | Type[str],
+    value_literal,
+) -> list[FIELD_LITERAL]:
+    """
+    Process the field substrings into the appropriate field literal values
+
+    Args:
+        substr: The substring to be parsed, e.g. the 10-character HAC Usage field
+        n_fields: Number of fields in the substring
+        field_len: Length of each field in the substring
+        break_values: The values to break the operation, typically "00", "0", or "  "
+        cast:  The object type to supply to the value_type, typically int or str
+        value_literal: The field literal type to be created
+
+    Return:
+        Sequence[value_literal]
+    """
+    position = 0
+    value_collection = []
+    for _ in range(n_fields):
+        value = substr[position : position + field_len]
+        if value in break_values:
+            if not value_collection:
+                value_collection.append(value_literal(cast(value)))
+            break
+        else:
+            value_collection.append(value_literal(cast(value)))
+            position += field_len
+    return value_collection
 
 
 class PatientName(Field):
@@ -867,14 +923,15 @@ class PrincipalDiagnosisEditReturnFlag(Field):
     def parse_field_string(
         cls, field_str: str
     ) -> Sequence[PrincipalDiagnosisEditReturnFlagValue]:
-        return_flags = []
-        position = 0
-        for i in range(cls.max_return_flags):
-            next_position = position + cls.return_flag_length
-            val = int(field_str[position:next_position])
-            return_flags.append(PrincipalDiagnosisEditReturnFlagValue(val))
-            position = next_position
-        return return_flags
+        val = parse_field_substring(
+            substr=field_str,
+            n_fields=cls.max_return_flags,
+            field_len=cls.return_flag_length,
+            break_values=["00"],
+            cast=int,
+            value_literal=PrincipalDiagnosisEditReturnFlagValue,
+        )
+        return val
 
 
 class PrincipalDiagnosisHospitalAcquiredConditionCriteria(Field):
@@ -899,15 +956,14 @@ class PrincipalDiagnosisHospitalAcquiredConditionCriteria(Field):
     def parse_field_string(
         cls, field_str
     ) -> Sequence[PrincipalDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue]:
-        return_flags = []
-        position = 0
-        for i in range(cls.n_criteria_fields):
-            next_position = position + cls.criteria_field_length
-            val = field_str[position:next_position]
-            return_flags.append(
-                PrincipalDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue(val)
-            )
-            position = next_position
+        return_flags = parse_field_substring(
+            substr=field_str,
+            n_fields=cls.n_criteria_fields,
+            field_len=cls.criteria_field_length,
+            break_values=["00", "11"],
+            cast=str,
+            value_literal=PrincipalDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue,
+        )
         return return_flags
 
 
@@ -933,13 +989,14 @@ class PrincipalDiagnosisHospitalAcquiredConditionUsage(Field):
     def parse_field_string(
         cls, field_str
     ) -> Sequence[DiagnosisHospitalAcquiredConditionUsageValue]:
-        hac_usage = []
-        position = 0
-        for i in range(cls.n_usage_fields):
-            next_position = position + cls.usage_value_field_length
-            val = field_str[position:next_position]
-            hac_usage.append(DiagnosisHospitalAcquiredConditionUsageValue(val))
-            position = next_position
+        hac_usage = parse_field_substring(
+            substr=field_str,
+            n_fields=cls.n_usage_fields,
+            field_len=cls.usage_value_field_length,
+            break_values=["0", " "],
+            cast=str,
+            value_literal=DiagnosisHospitalAcquiredConditionUsageValue,
+        )
         return hac_usage
 
 
@@ -969,16 +1026,24 @@ class SecondaryDiagnosisReturnFlag(Field):
         pass
 
     @classmethod
-    def parse_field_string(cls, field_str: str) -> Sequence[str]:
-        # TODO:  The return value is a list of 8-char str instead of up to 4
-        #  flag values
-        flags = []
+    def parse_field_string(
+        cls, field_str: str
+    ) -> Sequence[Sequence[SecondaryDiagnosisEditReturnFlagValue]]:
+        secondary_flags = []
         position = 0
-        for i in range(cls.occurrence):
+        for _ in range(cls.occurrence):
             next_position = position + cls.return_flag_field_length
-            flags.append(field_str[position:next_position])
+            dx_flags = parse_field_substring(
+                substr=field_str[position : position + cls.return_flag_field_length],
+                n_fields=cls.return_flags_per_diagnosis,
+                field_len=cls.return_flag_length,
+                break_values=["00"],
+                cast=int,
+                value_literal=SecondaryDiagnosisEditReturnFlagValue,
+            )
+            secondary_flags.append(dx_flags)
             position = next_position
-        return flags
+        return secondary_flags
 
 
 class SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteria(Field):
@@ -989,8 +1054,10 @@ class SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteria(Field):
     from the DRG assignment and the editor.
     """
 
+    hac_value_field_length = 2
+    hac_value_occurrence = 5
+    hac_field_length = hac_value_field_length * hac_value_occurrence
     position = 1073
-    hac_field_length = 10
     occurrence = 24
     field_length = hac_field_length * occurrence
     name = "secondary_diagnosis_hospital_acquired_condition_assignment_criteria"
@@ -1006,14 +1073,24 @@ class SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteria(Field):
         pass
 
     @classmethod
-    def parse_field_string(cls, field_str: str) -> Sequence[str]:
-        # TODO:  Figure out how these are parsed at a criteria flag level and
-        #  fix return value
+    def parse_field_string(
+        cls, field_str: str
+    ) -> Sequence[
+        Sequence[SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue]
+    ]:
         hac_criteria = []
         position = 0
-        for i in range(cls.occurrence):
+        for _ in range(cls.occurrence):
             next_position = position + cls.hac_field_length
-            hac_criteria.append(field_str[position:next_position])
+            dx_hac_criteria = parse_field_substring(
+                substr=field_str[position:next_position],
+                n_fields=cls.hac_value_occurrence,
+                field_len=cls.hac_value_field_length,
+                break_values=("  ", "00"),
+                cast=str,
+                value_literal=SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue,
+            )
+            hac_criteria.append(dx_hac_criteria)
             position = next_position
         return hac_criteria
 
@@ -1026,9 +1103,12 @@ class SecondaryDiagnosisHospitalAcquiredConditionUsage(Field):
     the DRG assignment and the editor.
     """
 
+    hac_usage_value_length = 1
+    hac_usage_value_occurrence = 5
     position = 1313
-    usage_field_length = 5
+    usage_field_length = hac_usage_value_length * hac_usage_value_occurrence
     occurrence = 24
+    field_length = usage_field_length * occurrence
     name = "secondary_diagnosis_hospital_acquired_condition_usage"
 
     def __init__(self, secondary_diagnosis_hospital_acquired_condition_usage):
@@ -1038,14 +1118,22 @@ class SecondaryDiagnosisHospitalAcquiredConditionUsage(Field):
         pass
 
     @classmethod
-    def parse_field_string(cls, field_str: str) -> Sequence[str]:
-        # TODO:  Figure out how these are parsed at a usage flag level and fix
-        #  return value
+    def parse_field_string(
+        cls, field_str: str
+    ) -> Sequence[Sequence[DiagnosisHospitalAcquiredConditionUsageValue]]:
         hac_usage = []
         position = 0
-        for i in range(cls.occurrence):
+        for _ in range(cls.occurrence):
             next_position = position + cls.usage_field_length
-            hac_usage.append(field_str[position:next_position])
+            dx_hac_usage = parse_field_substring(
+                substr=field_str[position:next_position],
+                n_fields=cls.hac_usage_value_occurrence,
+                field_len=cls.hac_usage_value_length,
+                break_values=(" ", "0"),
+                cast=str,
+                value_literal=DiagnosisHospitalAcquiredConditionUsageValue,
+            )
+            hac_usage.append(dx_hac_usage)
             position = next_position
         return hac_usage
 
@@ -1054,7 +1142,10 @@ class ProcedureEditReturnFlag(Field):
     """ """
 
     position = 1433
-    return_flag_field_length = 8
+
+    return_flag_value_length = 2
+    return_flag_per_diagnosis = 4
+    return_flag_field_length = return_flag_value_length * return_flag_per_diagnosis
     occurrence = 25
     field_length = occurrence * return_flag_field_length
     name = "procedure_edit_return_flag"
@@ -1066,14 +1157,22 @@ class ProcedureEditReturnFlag(Field):
         pass
 
     @classmethod
-    def parse_field_string(cls, field_str: str) -> Sequence[str]:
-        # TODO:  Figure out how these are parsed at a usage flag level and fix
-        #  return value
+    def parse_field_string(
+        cls, field_str: str
+    ) -> Sequence[Sequence[ProcedureEditReturnFlagValue]]:
         return_flags = []
         position = 0
-        for i in range(cls.occurrence):
+        for _ in range(cls.occurrence):
             next_position = position + cls.return_flag_field_length
-            return_flags.append(field_str[position:next_position])
+            proc_flags = parse_field_substring(
+                substr=field_str[position:next_position],
+                n_fields=cls.return_flag_per_diagnosis,
+                field_len=cls.return_flag_value_length,
+                break_values=("00",),
+                cast=str,
+                value_literal=ProcedureEditReturnFlagValue,
+            )
+            return_flags.append(proc_flags)
             position = next_position
         return return_flags
 
@@ -1083,7 +1182,9 @@ class ProcedureHospitalAcquiredConditionAssignmentCriteria(Field):
 
     position = 1633
     occurrence = 25
-    criteria_field_length = 10
+    criteria_value_length = 2
+    criteria_flag_per_diagnosis = 5
+    criteria_field_length = criteria_value_length * criteria_flag_per_diagnosis
     field_length = occurrence * criteria_field_length
     name = "procedure_hospital_acquired_condition_assignment_criteria"
 
@@ -1094,16 +1195,24 @@ class ProcedureHospitalAcquiredConditionAssignmentCriteria(Field):
         pass
 
     @classmethod
-    def parse_field_string(cls, field_str: str) -> Sequence[str]:
-        # TODO:  Figure out how these are parsed at a usage flag level and fix
-        #  return value
-        criteria = []
+    def parse_field_string(
+        cls, field_str: str
+    ) -> Sequence[Sequence[ProcedureHACAssignmentCriteriaValue]]:
+        hac_assignment = []
         position = 0
-        for i in range(cls.occurrence):
+        for _ in range(cls.occurrence):
             next_position = position + cls.criteria_field_length
-            criteria.append(field_str[position:next_position])
+            proc_hac_assignment = parse_field_substring(
+                substr=field_str[position:next_position],
+                n_fields=cls.criteria_flag_per_diagnosis,
+                field_len=cls.criteria_value_length,
+                break_values=("  ", "00"),
+                cast=str,
+                value_literal=ProcedureHACAssignmentCriteriaValue,
+            )
+            hac_assignment.append(proc_hac_assignment)
             position = next_position
-        return criteria
+        return hac_assignment
 
 
 class InitialFourDigitDRG(Field):
