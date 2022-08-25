@@ -1,0 +1,18 @@
+# Configurations for using the CMS DRG Grouper Interface library
+
+DEFAULTS:
+  # At present the CMS_MCE_GROUPER is the only supported grouper
+  grouper: CMS_MCE_GROUPER
+
+  # Set to True to delete the input file created by the library to pass to
+  # the grouper.  Set to False in order to save the input file after grouping.
+  delete_input_file_on_completion: True
+
+  # Set to True to delete the output file created by the grouper upon
+  # completion.  Set to False in order to save the output after grouping.
+  delete_output_file_on_completion: True
+
+CMS_MCE_GROUPER:
+  # Specify the directory containing the msgmce.bat file used to run
+  # the grouper
+  grouper_directory: C:\Program Files\MSG MCE Software I10
