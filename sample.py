@@ -1,12 +1,4 @@
-
-from pathlib import Path
-from time import sleep
-
-from src.adapter import (
-    MSDRGGrouperSoftwareInterface,
-    MSDRGGrouperSoftwareOptions,
-    MSDRGGrouperSoftwareParameters,
-)
+from src.adapter import MSDRGGrouperSoftwareParameter
 from src.batch import Batch
 from src.batch_field import (
     PatientName,
@@ -35,6 +27,7 @@ from src.field_literal import (
     SexValue,
     DischargeDispositionValue as Disposition,
 )
+from src.grouper import Grouper
 from src.record import InputRecord
 from src.value_container import (
     Date,
@@ -42,84 +35,52 @@ from src.value_container import (
     DiagnosisCode,
     ProcedureCode,
 )
-from src.output import OutputRecord
 
-#
-# # Create the patient record fields
-# patient_name = PatientName("Jonathan")
-# medical_record_number = MedicalRecordNumber("1234567")
-# account_number = AccountNumber("0987654321")
-# admit_date = AdmitDate(Date.from_string("08/01/2022"))
-# discharge_date = DischargeDate(Date.from_string("08/09/2022"))
-# discharge_status = DischargeStatus(Disposition.HOME_OR_SELF_CARE)
-# primary_payer = PrimaryPayer(Payer.INSURANCE_COMPANY)
-# los = LOS(8)
-# birth_date = BirthDate(Date.from_string("01/01/1980"))
-# age = Age(42)
-# sex = Sex(SexValue.MALE)
-# admit_diagnosis = AdmitDiagnosis(DiagnosisCode("J189"))
-# principal_diagnosis = PrincipalDiagnosis(
-#     Diagnosis(DiagnosisCode("J189"), POAValue.YES)
-# )
-# secondary_diagnoses = SecondaryDiagnoses(
-#     [Diagnosis(DiagnosisCode("E43"), POAValue.YES)]
-# )
-# principal_procedure = PrincipalProcedure(ProcedureCode("5A1955Z"))
-# secondary_procedures = SecondaryProcedures()
-# procedure_date = ProcedureDates([Date.from_string("08/01/2022")])
-# apply_hac_logic = ApplyHACLogic(HACLogic.REQUIRES_POA_REPORTING)
-#
-# # Create your record object
-# record = InputRecord(
-#     patient_name=patient_name,
-#     medical_record_number=medical_record_number,
-#     account_number=account_number,
-#     admit_date=admit_date,
-#     discharge_date=discharge_date,
-#     discharge_status=discharge_status,
-#     primary_payer=primary_payer,
-#     los=los,
-#     birth_date=birth_date,
-#     age=age,
-#     sex=sex,
-#     admit_diagnosis=admit_diagnosis,
-#     principal_diagnosis=principal_diagnosis,
-#     principal_procedure=principal_procedure,
-#     secondary_diagnoses=secondary_diagnoses,
-#     secondary_procedures=secondary_procedures,
-#     procedure_date=procedure_date,
-#     apply_hac_logic=apply_hac_logic,
-# )
-#
-# # Combine your records into a batch
-# batch = Batch([record])
-#
-# # Save your batch to a txt file
-# input_filepath = Path().cwd() / "input.txt"
-# with open(input_filepath, "w") as f:
-#     f.write(str(batch))
+# Create your record object from the patient record fields
+record = InputRecord(
+    patient_name=PatientName("Jonathan"),
+    medical_record_number=MedicalRecordNumber("1234567"),
+    account_number=AccountNumber("0987654321"),
+    admit_date=AdmitDate(Date.from_string("08/01/2022")),
+    discharge_date=DischargeDate(Date.from_string("08/09/2022")),
+    discharge_status=DischargeStatus(Disposition.HOME_OR_SELF_CARE),
+    primary_payer=PrimaryPayer(Payer.INSURANCE_COMPANY),
+    los=LOS(8),
+    birth_date=BirthDate(Date.from_string("01/01/1980")),
+    age=Age(42),
+    sex=Sex(SexValue.MALE),
+    admit_diagnosis=AdmitDiagnosis(DiagnosisCode("J189")),
+    principal_diagnosis=PrincipalDiagnosis(
+        Diagnosis(DiagnosisCode("J189"), POAValue.YES)
+    ),
+    secondary_diagnoses=SecondaryDiagnoses(
+        [
+            Diagnosis(DiagnosisCode("E43"), POAValue.YES),
+            Diagnosis(DiagnosisCode("K3521"), POAValue.NO),
+            Diagnosis(DiagnosisCode("L89894"), POAValue.NO),
+        ]
+    ),
+    principal_procedure=PrincipalProcedure(ProcedureCode("5A1955Z")),
+    secondary_procedures=SecondaryProcedures([ProcedureCode("0KBP3ZZ")]),
+    procedure_date=ProcedureDates(
+        [
+            Date.from_string("08/01/2022"),
+            Date.from_string("08/07/2022"),
+        ]
+    ),
+    apply_hac_logic=ApplyHACLogic(HACLogic.EXEMPT_FROM_POA_REPORTING),
+)
 
-# Create the output destination path
-output_filepath = Path().cwd() / "output.txt"
-#
-# # Pass the created batch file and destination path to a param object
-# params = MSDRGGrouperSoftwareParameters(
-#     batchfile=input_filepath,
-#     output_type=MSDRGGrouperSoftwareOptions.SingleLineOutput,
-#     output_destination=output_filepath
-# )
-#
-# # Create your grouper object
-# grouper_filepath = Path(r"C:\Program Files\MSG MCE Software I10")
-# grouper = MSDRGGrouperSoftwareInterface(grouper_directory=grouper_filepath)
-#
-# # Pass the grouper params to grouper.group() method
-# grouper.group(params=params)
-#
-# sleep(3)
+# Combine your records into a batch
+batch = Batch([record])
 
-# Read in the output
-output = []
-with open(output_filepath, "r") as f:
-    lines = f.read()
-rec = OutputRecord.from_line(lines)
+# Pass the created batch file and destination path to a param object
+params = MSDRGGrouperSoftwareParameter(batch=batch)
+
+# Create your grouper object
+grouper = Grouper()
+
+# Pass the grouper params to grouper.group() method
+output = grouper.group(params=params)
+
+output = output[0]
