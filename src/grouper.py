@@ -58,7 +58,7 @@ class Grouper:
     """
 
     grouper_default: Type[GrouperProcessorBase] = GROUPER_MAP[
-        CONFIG["DEFAULTS"]["adapter"]
+        CONFIG["DEFAULTS"]["grouper"]
     ]
 
     def __init__(self, grouper: Optional[GrouperProcessorBase] = None):
