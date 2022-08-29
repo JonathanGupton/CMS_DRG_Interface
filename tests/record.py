@@ -1,4 +1,4 @@
-from src.field import (
+from src.batch_field import (
     PatientName,
     MedicalRecordNumber,
     AccountNumber,
@@ -31,7 +31,7 @@ from src.field_literal import (
     SexValue,
     DischargeDispositionValue as Disposition,
 )
-from src.record import Record
+from src.record import InputRecord
 
 
 def test_record():
@@ -57,7 +57,7 @@ def test_record():
     secondary_procedures = SecondaryProcedures()
     procedure_date = ProcedureDates([Date.from_string("08/01/2022")])
     apply_hac_logic = ApplyHACLogic(HACLogic.REQUIRES_POA_REPORTING)
-    record = Record(
+    record = InputRecord(
         patient_name=patient_name,
         medical_record_number=medical_record_number,
         account_number=account_number,
