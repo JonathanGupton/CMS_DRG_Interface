@@ -210,6 +210,9 @@ class OutputRecord:
     def __init__(self, record: str) -> None:
         self.record = record
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({repr(self.account_number)})"
+
     @classmethod
     def from_line(cls, line):
         """Parse an output record from a grouper batchfile output line"""
