@@ -110,7 +110,7 @@ class DRGReturnCodeValue(Enum):
     HAC_POA_LOGIC_NON_EXEMPT_AND_MISSING_OR_INVALID = 12
     HAC_POA_ARE_N_OR_U = 13
     HAC_POA_ARE_INVALID_MISSING_OR_1 = 14
-    HAC_POA_MULTIPLE_DISTINCT_HAC_POAS_NOT_Y_OR_W = 15
+    HAC_POA_MULTIPLE_DISTINCT_HAC_POAS_NOT_Y_OR_W = 18
 
 
 class MSGMCEEditReturnCodeValue(Enum):
@@ -236,7 +236,7 @@ class ProcedureEditReturnFlagValue(Enum):
     PROCEDURE_PART_OF_HAC_ASSIGNMENT_CRITERIA = "99"
 
 
-class ProcedureHospitalAcquiredConditionAssignmentCriteriaValue(Enum):
+class ProcedureHACAssignmentCriteriaValue(Enum):
     """Procedure Hospital Acquired Condition Assignment Criteria"""
 
     CRITERIA_TO_BE_ASSIGNED_AS_A_HAC_NOT_MET = "00"
