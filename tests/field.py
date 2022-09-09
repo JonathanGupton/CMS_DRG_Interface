@@ -1,4 +1,4 @@
-from src.batch_field import *
+from field import PatientName
 
 
 def test_patient_name():

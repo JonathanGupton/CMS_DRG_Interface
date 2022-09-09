@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Iterable, Iterator, Optional
 
-from src.record import InputRecord
+from record import InputRecord
 
 
 class Batch:

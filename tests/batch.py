@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from src.batch import Batch, BatchFile
-from src.filehandler import FileHandler
+from batch import Batch, BatchFile
+from filehandler import FileHandler
 
 
 def test_batch(example_record):

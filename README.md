@@ -11,4 +11,4 @@ TBD
 See the sample.py file
 
 ## License
-[MIT](https://choosealicense.com/licenses/mit/)
+TBD
