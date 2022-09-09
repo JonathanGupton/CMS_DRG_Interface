@@ -9,7 +9,7 @@
 """
 from pathlib import Path
 
-from config import CONFIG
+from cms_drg_grouper_interface.config import CONFIG
 
 
 if not Path(CONFIG["grouper_path"]).exists():

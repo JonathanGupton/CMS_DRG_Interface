@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from collections import deque
 from typing import Any, Optional, Sequence, Type, Union
 
-from value import (
+from cms_drg_grouper_interface.value import (
     ApplyHACLogicValue,
     DiagnosisHospitalAcquiredConditionUsageValue,
     DischargeDispositionValue,

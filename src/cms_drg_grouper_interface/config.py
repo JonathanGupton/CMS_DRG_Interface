@@ -3,7 +3,7 @@ from pathlib import Path
 
 import tomli
 
-from default import DEFAULTS
+from cms_drg_grouper_interface.default import DEFAULTS
 
 
 def load_config():
@@ -13,9 +13,12 @@ def load_config():
 
 
 def read_config_file(directory, filename):
-    with open(directory / filename, "rb") as f:
-        config = tomli.load(f)
-    return extract_config_from_toml(config)
+    try:
+        with open(directory / filename, "rb") as f:
+            config = tomli.load(f)
+        return extract_config_from_toml(config)
+    except FileNotFoundError:
+        return {}
 
 
 def extract_config_from_toml(config: dict) -> dict:

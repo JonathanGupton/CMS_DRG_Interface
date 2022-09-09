@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Iterable, Iterator, Optional
 
-from record import InputRecord
+from cms_drg_grouper_interface.record import InputRecord
 
 
 class Batch:

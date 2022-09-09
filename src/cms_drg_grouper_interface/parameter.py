@@ -1,4 +1,4 @@
-from config import CONFIG
+from cms_drg_grouper_interface.config import CONFIG
 
 DELETE_INPUT_FILE_ON_COMPLETION = CONFIG["delete_input_file"]
 DELETE_OUTPUT_FILE_ON_COMPLETION = CONFIG["delete_input_file"]

@@ -7,9 +7,9 @@ from pathlib import Path
 from subprocess import CompletedProcess
 from typing import Optional
 
-from config import CONFIG
-from batch import Batch
-from parameter import GrouperParameter
+from cms_drg_grouper_interface.config import CONFIG
+from cms_drg_grouper_interface.batch import Batch
+from cms_drg_grouper_interface.parameter import GrouperParameter
 
 
 @contextlib.contextmanager

@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterator, Sequence
 
-from field import (
+from cms_drg_grouper_interface.field import (
     LOS,
     UNUSED,
     AccountNumber,

@@ -1,6 +1,6 @@
-from interface import MSDRGGrouperSoftwareParameter
-from batch import Batch
-from field import (
+from cms_drg_grouper_interface.interface import MSDRGGrouperSoftwareParameter
+from cms_drg_grouper_interface.batch import Batch
+from cms_drg_grouper_interface.field import (
     PatientName,
     MedicalRecordNumber,
     AccountNumber,
@@ -24,15 +24,16 @@ from field import (
     Diagnosis,
     ProcedureCode,
 )
-from value import (
+
+from cms_drg_grouper_interface.value import (
     PayerValue as Payer,
     PresentOnAdmissionValue as POAValue,
     ApplyHACLogicValue as HACLogic,
     SexValue,
     DischargeDispositionValue as Disposition,
 )
-from grouper import Grouper
-from record import InputRecord
+from cms_drg_grouper_interface.grouper import Grouper
+from cms_drg_grouper_interface.record import InputRecord
 
 # Create your record object from the patient record fields
 record = InputRecord(

@@ -1,10 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Type
 
-from interface import MSDRGGrouperSoftwareInterface, MSDRGGrouperSoftwareParameter
-from config import CONFIG
-from parameter import GrouperParameter
-from record import OutputRecord, load_output_from_file
+from cms_drg_grouper_interface.interface import (
+    MSDRGGrouperSoftwareInterface,
+    MSDRGGrouperSoftwareParameter,
+)
+from cms_drg_grouper_interface.config import CONFIG
+from cms_drg_grouper_interface.parameter import GrouperParameter
+from cms_drg_grouper_interface.record import OutputRecord, load_output_from_file
 
 
 class GrouperProcessorBase(ABC):
