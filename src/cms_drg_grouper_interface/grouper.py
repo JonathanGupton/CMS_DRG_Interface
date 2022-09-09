@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Type
 
-from src.adapter import MSDRGGrouperSoftwareInterface, MSDRGGrouperSoftwareParameter
-from src.parameter import GrouperParameter
-from src.config import CONFIG
-from src.record import OutputRecord, load_output_from_file
+from interface import MSDRGGrouperSoftwareInterface, MSDRGGrouperSoftwareParameter
+from config import CONFIG
+from parameter import GrouperParameter
+from record import OutputRecord, load_output_from_file
 
 
 class GrouperProcessorBase(ABC):
@@ -57,9 +57,7 @@ class Grouper:
     grouper in the config file if not otherwise specified.
     """
 
-    grouper_default: Type[GrouperProcessorBase] = GROUPER_MAP[
-        CONFIG["DEFAULTS"]["grouper"]
-    ]
+    grouper_default: Type[GrouperProcessorBase] = GROUPER_MAP[CONFIG["grouper"]]
 
     def __init__(self, grouper: Optional[GrouperProcessorBase] = None):
         if grouper is None:

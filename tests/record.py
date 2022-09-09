@@ -1,4 +1,4 @@
-from src.batch_field import (
+from field import (
     PatientName,
     MedicalRecordNumber,
     AccountNumber,
@@ -17,21 +17,19 @@ from src.batch_field import (
     SecondaryProcedures,
     ProcedureDates,
     ApplyHACLogic,
-)
-from src.value_container import (
     Date,
-    Diagnosis,
     DiagnosisCode,
+    Diagnosis,
     ProcedureCode,
 )
-from src.field_literal import (
+from value import (
     PayerValue as Payer,
     PresentOnAdmissionValue as POAValue,
     ApplyHACLogicValue as HACLogic,
     SexValue,
     DischargeDispositionValue as Disposition,
 )
-from src.record import InputRecord
+from record import InputRecord
 
 
 def test_record():

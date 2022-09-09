@@ -1,10 +1,7 @@
-from src.config import CONFIG
+from config import CONFIG
 
-
-DELETE_INPUT_FILE_ON_COMPLETION = CONFIG["DEFAULTS"]["delete_input_file_on_completion"]
-DELETE_OUTPUT_FILE_ON_COMPLETION = CONFIG["DEFAULTS"][
-    "delete_output_file_on_completion"
-]
+DELETE_INPUT_FILE_ON_COMPLETION = CONFIG["delete_input_file"]
+DELETE_OUTPUT_FILE_ON_COMPLETION = CONFIG["delete_input_file"]
 
 
 class GrouperParameter:

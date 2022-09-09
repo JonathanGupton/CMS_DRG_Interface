@@ -1,32 +1,71 @@
-"""Module containing the fields used in the CMS DRG Batch Interface"""
-
 from __future__ import annotations
-from collections import deque
-from typing import Sequence, Optional, Type, Union
 
-from src.field_literal import (
+import datetime
+from abc import ABC, abstractmethod
+from collections import deque
+from typing import Any, Optional, Sequence, Type, Union
+
+from value import (
     ApplyHACLogicValue,
+    DiagnosisHospitalAcquiredConditionUsageValue,
     DischargeDispositionValue,
-    PayerValue,
-    SexValue,
-    MedicalSurgicalIndicatorValue,
+    DRGCCMCCUsageValue,
     DRGReturnCodeValue,
+    HACStatusValue,
+    MedicalSurgicalIndicatorValue,
     MSGMCEEditReturnCodeValue,
+    PayerValue,
+    PresentOnAdmissionValue,
     PrincipalDiagnosisEditReturnFlagValue,
     PrincipalDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue,
-    DiagnosisHospitalAcquiredConditionUsageValue,
-    SecondaryDiagnosisEditReturnFlagValue,
-    SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue,
     ProcedureEditReturnFlagValue,
     ProcedureHACAssignmentCriteriaValue,
-    DRGCCMCCUsageValue,
-    HACStatusValue,
+    SecondaryDiagnosisEditReturnFlagValue,
+    SecondaryDiagnosisHospitalAcquiredConditionAssignmentCriteriaValue,
+    SexValue,
 )
-from src.field import Field
-from src.value_container import Date, Diagnosis, DiagnosisCode, ProcedureCode
 
 
-FIELD_LITERAL = Union[
+class Field(ABC):
+    """Base Class used for all record fields"""
+
+    field_length = 0
+    position = 0
+    occurrence = 0
+
+    def __init__(self, value) -> None:
+        self.value = value
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.value})"
+
+    @abstractmethod
+    def __str__(self) -> str:
+        raise NotImplementedError
+
+    def __len__(self) -> int:
+        return len(str(self))
+
+    @classmethod
+    def new_from_output_string(cls, output: str) -> Field:
+        """Method to extract the field information from a grouped output string"""
+        field_string = cls.isolate_field_str(output)
+        return cls(cls.parse_field_string(field_string))
+
+    @classmethod
+    @abstractmethod
+    def parse_field_string(cls, field_str: str) -> Any:
+        """Convert the string slice extracted from the output file to the
+        field's value type."""
+        raise NotImplementedError
+
+    @classmethod
+    def isolate_field_str(cls, output: str) -> str:
+        """Extract the field specific string from the output string"""
+        return output[cls.position : cls.position + cls.field_length]
+
+
+FIELD_LITERAL_TYPE = Union[
     ApplyHACLogicValue,
     DischargeDispositionValue,
     PayerValue,
@@ -58,7 +97,7 @@ def parse_field_substring(
     break_values: Sequence[str],
     cast: Type[int] | Type[str],
     value_literal,
-) -> list[FIELD_LITERAL]:
+) -> list[FIELD_LITERAL_TYPE]:
     """
     Process the field substrings into the appropriate field literal values
 
@@ -85,6 +124,144 @@ def parse_field_substring(
             value_collection.append(value_literal(cast(value)))
             position += field_len
     return value_collection
+
+
+class Date:
+    """
+    Date class used for all date fields
+    mm/dd/yyyy format
+    All blanks if no value is entered.
+    """
+
+    date_format = r"%m/%d/%Y"
+    field_length = 10
+
+    def __init__(self, date: Optional[datetime.date] = None) -> None:
+        self.date = date
+
+    def __str__(self):
+        if self.date:
+            return self.date.strftime(self.date_format)
+        else:
+            return " " * self.field_length
+
+    @classmethod
+    def from_string(cls, date_string: str, format: str = r"%m/%d/%Y") -> "Date":
+        date = datetime.datetime.strptime(date_string, format)
+        return Date(date)
+
+
+class DiagnosisCode:
+    """
+    Class containing the ICD-9/ICD-10 diagnosis code value
+    Left-justified, blank filled
+    Diagnosis code without decimal.
+    All blanks if no value is entered.
+    """
+
+    max_len = 7
+
+    def __init__(self, code: Optional[str] = None) -> None:
+        if not code:
+            self.code = ""
+            return
+        code = remove_decimal(code)
+        code = code.strip()
+        if not code.isalnum():
+            raise ValueError
+        self.code = code
+
+    def __str__(self) -> str:
+        return self.code.ljust(self.max_len)
+
+
+class Diagnosis:
+    """
+    Diagnosis field value containing the diagnosis code and POA indicator
+    """
+
+    field_length = 8
+
+    def __init__(
+        self,
+        diagnosis_code: Optional[DiagnosisCode] = None,
+        poa: Optional[PresentOnAdmissionValue] = None,
+    ):
+        if not diagnosis_code:
+            self.code = DiagnosisCode()
+        else:
+            self.code = diagnosis_code
+
+        if not poa:
+            self.poa = PresentOnAdmissionValue.NONE_TYPE
+        else:
+            self.poa = poa
+
+    def __str__(self):
+        return str(self.code) + str(self.poa.value)
+
+    @classmethod
+    def extract_from_output(cls, output) -> Diagnosis:
+        """
+        Extract the diagnosis code and POA value from an 8 character diagnosis
+        string
+        """
+        dx_code = output[: DiagnosisCode.max_len]
+        poa = PresentOnAdmissionValue(output[-1])
+        return Diagnosis(dx_code, poa)
+
+
+class ProcedureCode:
+    """
+    Class containing the ICD-9/ICD-10 procedure code value
+    Left-justified, blank filled
+    Procedure code without decimal.
+    All blanks if no value is entered.
+    """
+
+    field_length = 7
+
+    def __init__(self, procedure_code: Optional[str] = None) -> None:
+        if not procedure_code:
+            self.procedure_code = ""
+            return
+
+        procedure_code = remove_decimal(procedure_code)
+        if not procedure_code.isalnum():
+            raise ValueError
+        self.procedure_code = procedure_code
+
+    def __str__(self):
+        if not self.procedure_code:
+            return " " * self.field_length
+        else:
+            return self.procedure_code.ljust(self.field_length)
+
+
+class Procedure:
+    """
+    Procedure object containing the procedure code and procedure date information
+    """
+
+    __slots__ = [
+        "procedure_code",
+        "date",
+    ]
+
+    def __init__(
+        self,
+        procedure_code: Optional[ProcedureCode] = None,
+        date: Optional[Date] = None,
+    ) -> None:
+        if not procedure_code:
+            self.procedure_code = Procedure()
+        else:
+            self.procedure_code = procedure_code
+
+        if not date:
+            self.date = Date()
+        else:
+            self.date = date
 
 
 class PatientName(Field):
@@ -1350,3 +1527,8 @@ class CostWeight(Field):
     @classmethod
     def parse_field_string(cls, field_str: str) -> float:
         return float(field_str)
+
+
+def remove_decimal(text: str) -> str:
+    """Remove the decimal from ICD-9/ICD-10 codes when present"""
+    return text.replace(".", "")

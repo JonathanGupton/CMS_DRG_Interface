@@ -7,9 +7,9 @@ from pathlib import Path
 from subprocess import CompletedProcess
 from typing import Optional
 
-from src.batch import Batch
-from src.config import CONFIG
-from src.parameter import GrouperParameter
+from config import CONFIG
+from batch import Batch
+from parameter import GrouperParameter
 
 
 @contextlib.contextmanager
@@ -85,7 +85,7 @@ class MSDRGGrouperSoftwareInterface(GrouperInterface):
         if grouper_directory is not None:
             self.grouper_directory = grouper_directory
         else:
-            self.grouper_directory = CONFIG["CMS_MCE_GROUPER"]["grouper_directory"]
+            self.grouper_directory = Path(CONFIG["grouper_path"])
 
     def group(self, params: MSDRGGrouperSoftwareParameter) -> CompletedProcess:
         command = [self.msgmce, *params]
