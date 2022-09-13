@@ -671,8 +671,12 @@ class PrincipalProcedure(Field):
         return str(self.value)
 
     @classmethod
-    def parse_field_string(cls, field_str: str) -> ProcedureCode:
-        return ProcedureCode(field_str)
+    def parse_field_string(cls, field_str: str) -> Optional[ProcedureCode]:
+        proc_code_str = field_str.strip()
+        if not proc_code_str:
+            return None
+        else:
+            return ProcedureCode(field_str)
 
 
 class SecondaryProcedures(Field):
